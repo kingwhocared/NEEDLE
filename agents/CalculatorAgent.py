@@ -5,9 +5,12 @@ class CalculatorAgent:
         pass
 
     def serve_compute_request(self, compute_request):
-        prompt_with_request = f'Return only an mathematical expression that can be evaluated in python for the following: "{compute_request}"'
+        prompt_with_request = f'Return only a raw mathematical expression text that can be evaluated in python for the following: "{compute_request}"'
         python_formatted_format = get_openai_inference(prompt_with_request)
-        res = eval(python_formatted_format)
+        try:
+            res = eval(python_formatted_format)
+        except Exception as e:
+            print(f"Failed to evaluate expression: {python_formatted_format}")
         return res
 
 

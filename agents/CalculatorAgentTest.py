@@ -9,12 +9,15 @@ class CalculatorAgentTests(unittest.TestCase):
         self.syn_arithmetics_dataset = SyntheticArithmetics()
 
     def _assert_a_compute_request_calculator_agent(self, q, a):
-        self.assertEqual(self.calculatorAgent.serve_compute_request(q), a)  # add assertion here
+        print(f'Testing a computer request: \nq: {q}, a: {a}')
+        ret = self.calculatorAgent.serve_compute_request(q)
+        print(f'CalculatorAgent returned: {ret}')
+        self.assertEqual(ret, a)
 
     def test_calculator_agent_is_reliable(self):
         n_times_tested_on_synthetic_questions = 0
         try:
-            for i in range(1):
+            for i in range(100):
                 q, a = self.syn_arithmetics_dataset.gen_arithmetics_question()
                 self._assert_a_compute_request_calculator_agent(q, a)
                 n_times_tested_on_synthetic_questions += 1
