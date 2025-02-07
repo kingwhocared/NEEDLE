@@ -31,7 +31,7 @@ class SyntheticArithmetics:
         a, b = self._rand_num(), self._rand_num()
 
         subtraction_templates = [
-            "how much is {a} minus {b}?"
+            "how much is {a} minus {b}?",
             "subtract {b} from {a}",
             "{a} - {b}",
         ]

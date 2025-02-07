@@ -1,0 +1,312 @@
+"C:\local pycharm projects\NEEDLE\venv\Scripts\python.exe" "C:/Program Files/JetBrains/PyCharm 2024.1.1/plugins/python/helpers/pycharm/_jb_unittest_runner.py" --path "C:\local pycharm projects\NEEDLE\agents\SolverAgentTest.py"
+Testing started at 21:58 ...
+Launching unittests with arguments python -m unittest C:\local pycharm projects\NEEDLE\agents\SolverAgentTest.py in C:\local pycharm projects\NEEDLE\agents
+
+Testing a solver agent request:
+q: how much is 822 plus 306?, a: 1128
+SolverAgent returned: 1128
+Testing a solver agent request:
+q: multiply 199 with 805, a: 160195
+SolverAgent returned: 160195
+Testing a solver agent request:
+q: 349 - 594, a: -245
+SolverAgent returned: -245
+Testing a solver agent request:
+q: how much is 796 times 579?, a: 460884
+SolverAgent returned: 460884
+Testing a solver agent request:
+q: multiply 169 with 932, a: 157508
+SolverAgent returned: 157508
+Testing a solver agent request:
+q: add 691 to 9, a: 700
+SolverAgent returned: 700
+Testing a solver agent request:
+q: how much is 576240 divided by 980?, a: 588
+SolverAgent returned: 588
+Testing a solver agent request:
+q: how much is 141 plus 502?, a: 643
+SolverAgent returned: 643
+Testing a solver agent request:
+q: how much is 171 minus 948?subtract 948 from 171, a: -777
+SolverAgent returned: -777
+Testing a solver agent request:
+q: how much is 24 times 435?, a: 10440
+SolverAgent returned: 10440
+Testing a solver agent request:
+q: 564 - 941, a: -377
+SolverAgent returned: -377
+Testing a solver agent request:
+q: divide 201432 by 462, a: 436
+SolverAgent returned: 436
+Testing a solver agent request:
+q: multiply 414 with 504, a: 208656
+SolverAgent returned: 208656
+Testing a solver agent request:
+q: how much is 833 minus 187?subtract 187 from 833, a: 646
+SolverAgent returned: 646
+Testing a solver agent request:
+q: how much is 225138 divided by 478?, a: 471
+SolverAgent returned: 471
+Testing a solver agent request:
+q: 186*814, a: 151404
+SolverAgent returned: 151404
+Testing a solver agent request:
+q: add 372 to 580, a: 952
+SolverAgent returned: 952
+Testing a solver agent request:
+q: 320*496, a: 158720
+SolverAgent returned: 158720
+Testing a solver agent request:
+q: how much is 894 plus 492?, a: 1386
+SolverAgent returned: 1386
+Testing a solver agent request:
+q: how much is 868 times 506?, a: 439208
+SolverAgent returned: 439208
+Testing a solver agent request:
+q: how much is 40 times 269?, a: 10760
+SolverAgent returned: 10760
+Testing a solver agent request:
+q: how much is 152 times 363?, a: 55176
+SolverAgent returned: 55176
+Testing a solver agent request:
+q: how much is 234 times 803?, a: 187902
+SolverAgent returned: 187902
+Testing a solver agent request:
+q: how much is 44660 divided by 290?, a: 154
+SolverAgent returned: 154
+Testing a solver agent request:
+q: 22 - 711, a: -689
+SolverAgent returned: -689
+Testing a solver agent request:
+q: add 518 to 586, a: 1104
+SolverAgent returned: 1104
+Testing a solver agent request:
+q: 29*937, a: 27173
+SolverAgent returned: 27173
+Testing a solver agent request:
+q: add 474 to 858, a: 1332
+SolverAgent returned: 1332
+Testing a solver agent request:
+q: how much is 36140 divided by 130?, a: 278
+SolverAgent returned: 278
+Testing a solver agent request:
+q: how much is 379665 divided by 429?, a: 885
+SolverAgent returned: 885
+Testing a solver agent request:
+q: add 716 to 380, a: 1096
+SolverAgent returned: 1096
+Testing a solver agent request:
+q: how much is 464 plus 731?, a: 1195
+SolverAgent returned: 1195
+Testing a solver agent request:
+q: how much is 336091 divided by 361?, a: 931
+SolverAgent returned: 931
+Testing a solver agent request:
+q: how much is 849 times 86?, a: 73014
+SolverAgent returned: 73014
+Testing a solver agent request:
+q: add 573 to 847, a: 1420
+SolverAgent returned: 1420
+Testing a solver agent request:
+q: how much is 872 plus 554?, a: 1426
+SolverAgent returned: 1426
+Testing a solver agent request:
+q: divide 832644 by 916, a: 909
+SolverAgent returned: 909
+Testing a solver agent request:
+q: how much is 899272 divided by 929?, a: 968
+SolverAgent returned: 968
+Testing a solver agent request:
+q: divide 243758 by 794, a: 307
+SolverAgent returned: 307
+Testing a solver agent request:
+q: how much is 564 plus 550?, a: 1114
+SolverAgent returned: 1114
+Testing a solver agent request:
+q: multiply 805 with 447, a: 359835
+SolverAgent returned: 359835
+Testing a solver agent request:
+q: divide 89271 by 273, a: 327
+SolverAgent returned: 327
+Testing a solver agent request:
+q: divide 177600 by 240, a: 740
+SolverAgent returned: 740
+Testing a solver agent request:
+q: 212 - 202, a: 10
+SolverAgent returned: 10
+Testing a solver agent request:
+q: how much is 822 minus 607?subtract 607 from 822, a: 215
+SolverAgent returned: 215
+Testing a solver agent request:
+q: 733 - 929, a: -196
+SolverAgent returned: -196
+Testing a solver agent request:
+q: 237*850, a: 201450
+SolverAgent returned: 201450
+Testing a solver agent request:
+q: how much is 609 times 550?, a: 334950
+SolverAgent returned: 334950
+Testing a solver agent request:
+q: how much is 407 plus 962?, a: 1369
+SolverAgent returned: 1369
+Testing a solver agent request:
+q: how much is 19008 divided by 132?, a: 144
+SolverAgent returned: 144
+Testing a solver agent request:
+q: 469 - 840, a: -371
+SolverAgent returned: -371
+Testing a solver agent request:
+q: how much is 311 times 839?, a: 260929
+SolverAgent returned: 260929
+Testing a solver agent request:
+q: how much is 21033 divided by 123?, a: 171
+SolverAgent returned: 171
+Testing a solver agent request:
+q: how much is 688 plus 816?, a: 1504
+SolverAgent returned: 1504
+Testing a solver agent request:
+q: divide 569850 by 725, a: 786
+SolverAgent returned: 786
+Testing a solver agent request:
+q: how much is 391 plus 928?, a: 1319
+SolverAgent returned: 1319
+Testing a solver agent request:
+q: divide 204960 by 976, a: 210
+SolverAgent returned: 210
+Testing a solver agent request:
+q: divide 20160 by 42, a: 480
+SolverAgent returned: 480
+Testing a solver agent request:
+q: divide 87264 by 101, a: 864
+SolverAgent returned: 864
+Testing a solver agent request:
+q: 901 - 43, a: 858
+SolverAgent returned: 858
+Testing a solver agent request:
+q: 398*97, a: 38606
+SolverAgent returned: 38606
+Testing a solver agent request:
+q: 301*754, a: 226954
+SolverAgent returned: 226954
+Testing a solver agent request:
+q: multiply 830 with 888, a: 737040
+SolverAgent returned: 737040
+Testing a solver agent request:
+q: add 3 to 29, a: 32
+SolverAgent returned: 32
+Testing a solver agent request:
+q: 304 - 782, a: -478
+SolverAgent returned: -478
+Testing a solver agent request:
+q: add 630 to 891, a: 1521
+SolverAgent returned: 1521
+Testing a solver agent request:
+q: add 153 to 26, a: 179
+SolverAgent returned: 179
+Testing a solver agent request:
+q: how much is 185712 divided by 292?, a: 636
+SolverAgent returned: 636
+Testing a solver agent request:
+q: 454 - 934, a: -480
+SolverAgent returned: -480
+Testing a solver agent request:
+q: how much is 626 times 196?, a: 122696
+SolverAgent returned: 122696
+Testing a solver agent request:
+q: how much is 33480 divided by 270?, a: 124
+SolverAgent returned: 124
+Testing a solver agent request:
+q: how much is 957 plus 201?, a: 1158
+SolverAgent returned: 1158
+Testing a solver agent request:
+q: 543*920, a: 499560
+SolverAgent returned: 499560
+Testing a solver agent request:
+q: how much is 733825 divided by 745?, a: 985
+SolverAgent returned: 985
+Testing a solver agent request:
+q: how much is 77004 divided by 372?, a: 207
+SolverAgent returned: 207
+Testing a solver agent request:
+q: add 935 to 812, a: 1747
+SolverAgent returned: 1747
+Testing a solver agent request:
+q: 468*997, a: 466596
+SolverAgent returned: 466596
+Testing a solver agent request:
+q: how much is 524 minus 94?subtract 94 from 524, a: 430
+SolverAgent returned: 430
+Testing a solver agent request:
+q: how much is 977 plus 760?, a: 1737
+SolverAgent returned: 1737
+Testing a solver agent request:
+q: how much is 156 plus 359?, a: 515
+SolverAgent returned: 515
+Testing a solver agent request:
+q: how much is 218 plus 200?, a: 418
+SolverAgent returned: 418
+Testing a solver agent request:
+q: divide 16506 by 393, a: 42
+SolverAgent returned: 42
+Testing a solver agent request:
+q: how much is 544570 divided by 710?, a: 767
+SolverAgent returned: 767
+Testing a solver agent request:
+q: divide 4224 by 32, a: 132
+SolverAgent returned: 132
+Testing a solver agent request:
+q: how much is 973 times 142?, a: 138166
+SolverAgent returned: 138166
+Testing a solver agent request:
+q: how much is 81270 divided by 129?, a: 630
+SolverAgent returned: 630
+Testing a solver agent request:
+q: divide 104880 by 380, a: 276
+SolverAgent returned: 276
+Testing a solver agent request:
+q: divide 61800 by 309, a: 200
+SolverAgent returned: 200
+Testing a solver agent request:
+q: add 191 to 224, a: 415
+SolverAgent returned: 415
+Testing a solver agent request:
+q: add 195 to 151, a: 346
+SolverAgent returned: 346
+Testing a solver agent request:
+q: 748 - 610, a: 138
+SolverAgent returned: 138
+Testing a solver agent request:
+q: how much is 608 minus 977?subtract 977 from 608, a: -369
+SolverAgent returned: -369
+Testing a solver agent request:
+q: 54 - 936, a: -882
+SolverAgent returned: -882
+Testing a solver agent request:
+q: divide 384264 by 648, a: 593
+SolverAgent returned: 593
+Testing a solver agent request:
+q: divide 36462 by 59, a: 618
+SolverAgent returned: 618
+Testing a solver agent request:
+q: multiply 164 with 734, a: 120376
+SolverAgent returned: 120376
+Testing a solver agent request:
+q: how much is 969 minus 778?subtract 778 from 969, a: 191
+SolverAgent returned: 191
+Testing a solver agent request:
+q: 671*7, a: 4697
+SolverAgent returned: 4697
+Testing a solver agent request:
+q: how much is 830 plus 672?, a: 1502
+SolverAgent returned: 1502
+Testing a solver agent request:
+q: how much is 534 minus 749?subtract 749 from 534, a: -215
+
+
+Ran 1 test in 309.199s
+
+OK
+SolverAgent returned: -215
+Number of synthetic questions tested successfully: 100
+
+Process finished with exit code 0
