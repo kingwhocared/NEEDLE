@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from Utils.MyOpenAIUtils import get_openai_inference_with_schema
+from utils.MyOpenAIUtils import get_openai_inference_with_schema
 
 
 class _PythonEvaluableExpression(BaseModel):

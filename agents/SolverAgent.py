@@ -1,6 +1,6 @@
-from Utils.MyOpenAIUtils import OPENAI_CLIENT
+from utils.MyOpenAIUtils import OPENAI_CLIENT
 from CalculatorAgent import CalculatorAgent
-from Utils.logging_utils import MyLoggerForFailures
+from utils.logging_utils import MyLoggerForFailures
 
 _CALL_CALCULATOR_FUNCTION_NAME = "compute_arithmetic_calculation"
 _CALL_ANSWER_READY_FUNCTION_NAME = "final_answer"

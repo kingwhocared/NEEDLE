@@ -3,7 +3,7 @@ import unittest
 from datasets.SyntheticArithmetics import SyntheticArithmetics
 from datasets.GSM8K import GSM8K
 
-from Utils.logging_utils import MyLoggerForFailures
+from utils.logging_utils import MyLoggerForFailures
 from agents.SolverAgent import SolverAgent
 
 class SolverAgentTests(unittest.TestCase):
@@ -42,7 +42,7 @@ class SolverAgentTests(unittest.TestCase):
                 pass
         accuracy = 100 * n_successes / n_tests
         print(f"For GSKM8K, being correct on {n_successes} out of {n_tests}, solver agent has accuracy of {accuracy}%")
-        assert accuracy > 50
+        self.assertLess(50, accuracy)
 
 
 
