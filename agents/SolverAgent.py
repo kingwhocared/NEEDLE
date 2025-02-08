@@ -2,7 +2,7 @@ from utils.MyOpenAIUtils import OPENAI_CLIENT
 from CalculatorAgent import CalculatorAgent
 from utils.logging_utils import MyLoggerForFailures
 
-_CALL_CALCULATOR_FUNCTION_NAME = "compute_arithmetic_calculation"
+_CALL_CALCULATOR_FUNCTION_NAME = "simple_calculator"
 _CALL_ANSWER_READY_FUNCTION_NAME = "final_answer"
 
 _LIMIT_LLM_CALLS_FOR_SOLVER_AGENT = 20
@@ -15,9 +15,11 @@ class SolverAgent:
                 "type": "function",
                 "function": {
                     "name": _CALL_CALCULATOR_FUNCTION_NAME,
-                    "description": "Compute a simple arithmetic question and return the resulting number. "
-                                   "This tool is a calculator that can handle basic operations like "
-                                   "addition, subtraction, multiplication and division.",
+                    "description": "Compute a simple arithmetic expression and return the resulting number. "
+                                   "This calculator only supports basic arithmetic: "
+                                   "addition, subtraction, multiplication, and division. "
+                                   "Please provide an expression that uses only numerical values "
+                                   "and these four basic operations.",
                     "strict": True,
                     "parameters": {
                         "type": "object",
@@ -27,8 +29,10 @@ class SolverAgent:
                         "properties": {
                             "arithmetic_task": {
                                 "type": "string",
-                                "description": "A string of a valid arithmetic expression (e.g., 'how much is 8 "
-                                               "times 9?' or 'divide 12 by 4')."
+                                "description": "A string representing a valid arithmetic expression using only "
+                                               "addition, subtraction, multiplication, or division "
+                                               "(e.g., 'how much is 8 times 9?' or 'divide 12 by 4')."
+                                               "No variables, symbols, or literals allowed as input."
                             }
                         },
                         "additionalProperties": False
@@ -101,7 +105,6 @@ class SolverAgent:
                 except Exception as e:
                     error_message = f"Computer agent failed: {e}"
                     logger.log(error_message)
-                    logger.flush_log_to_file()
                     raise RuntimeError(error_message)
                 logger.log(f"Computer returned: {compute_result}")
 
@@ -115,15 +118,12 @@ class SolverAgent:
             elif tool_requested == _CALL_ANSWER_READY_FUNCTION_NAME:
                 final_answer = tool_arguments['output_numerical_value']
                 logger.log(f"Solver returned final answer: {final_answer}")
-                logger.flush_log_to_file()
                 return final_answer
             else:
                 error_message = f"Invalid tool requested: {tool_requested}"
                 logger.log(error_message)
-                logger.flush_log_to_file()
                 raise RuntimeError(error_message)
 
         error_message = f"Solver agent was called {n_times_prompted_agent} times but has not able to complete task."
         logger.log(error_message)
-        logger.flush_log_to_file()
         raise RuntimeError(error_message)

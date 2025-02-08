@@ -1,10 +1,13 @@
+import time
 import unittest
+from tqdm import tqdm
 
 from datasets.SyntheticArithmetics import SyntheticArithmetics
 from datasets.GSM8K import GSM8K
 
 from utils.logging_utils import MyLoggerForFailures
 from agents.SolverAgent import SolverAgent
+
 
 class SolverAgentTests(unittest.TestCase):
     def setUp(self):
@@ -13,10 +16,24 @@ class SolverAgentTests(unittest.TestCase):
         self.dataset_GSM8K = GSM8K()
 
     def _test_a_problem_solved_by_solver_agent(self, q, a):
-        print(f'Testing a solver agent request: \nq: {q}, a: {a}')
-        ret = self.solverAgent.serve_solve_request(q, logger=MyLoggerForFailures(q))
-        print(f'SolverAgent returned: {ret}')
-        return ret == a
+        logger = MyLoggerForFailures(q)
+        starting_test_message = f'Testing a solver agent request: \nq: {q}, a: {a}'
+        print(starting_test_message)
+        logger.log(starting_test_message)
+        try:
+            ret = self.solverAgent.serve_solve_request(q, logger=logger)
+            print(f'SolverAgent returned: {ret}')
+        except Exception as e:
+            error_message = f"Solver agent serve_solve_request threw an exception!: {e}"
+            print(error_message)
+            logger.log(error_message)
+            ret = None
+
+        is_correct = (ret == a)
+        logger.log(
+            "Answer was correct!" if is_correct else "Failure to output answer" if ret is None else "Wrong answer!")
+        logger.flush_log_to_file()
+        return is_correct
 
     def test_solver_agent_is_reliable_on_synthetic_dataset(self):
         n_times_tested_on_synthetic_questions = 0
@@ -31,7 +48,7 @@ class SolverAgentTests(unittest.TestCase):
     def test_solver_agent_on_GSM8K(self):
         n_tests = 0
         n_successes = 0
-        for i in range(1):
+        for _ in tqdm(range(100), desc="Processing"):
             try:
                 q, a = self.dataset_GSM8K.get_next_GSM_question()
                 n_tests += 1
@@ -43,8 +60,6 @@ class SolverAgentTests(unittest.TestCase):
         accuracy = 100 * n_successes / n_tests
         print(f"For GSKM8K, being correct on {n_successes} out of {n_tests}, solver agent has accuracy of {accuracy}%")
         self.assertLess(50, accuracy)
-
-
 
 
 if __name__ == '__main__':
