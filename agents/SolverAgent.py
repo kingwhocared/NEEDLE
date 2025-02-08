@@ -1,5 +1,6 @@
 from Utils.MyOpenAIUtils import OPENAI_CLIENT
 from CalculatorAgent import CalculatorAgent
+from Utils.logging_utils import MyLoggerForFailures
 
 _CALL_CALCULATOR_FUNCTION_NAME = "compute_arithmetic_calculation"
 _CALL_ANSWER_READY_FUNCTION_NAME = "final_answer"
@@ -64,10 +65,7 @@ class SolverAgent:
         ]
         self.calculator_agent = CalculatorAgent()
 
-    def serve_solve_request(self, solve_request):
-        prompt_with_request = f'Please solve: "{solve_request}"'
-        # python_formatted_format = get_openai_inference(prompt_with_request)
-
+    def serve_solve_request(self, solve_request, logger: MyLoggerForFailures):
         messages = [
             {"role": "system",
              "content": "Your task is to solve a question. "
@@ -75,6 +73,8 @@ class SolverAgent:
                         f"please use the {_CALL_CALCULATOR_FUNCTION_NAME} tool for that."},
             {"role": "user", "content": f"Please solve: {solve_request}"}
         ]
+        logger.log("Starting new solve request.")
+        logger.log(messages)
 
         n_times_prompted_agent = 0
 
@@ -95,7 +95,15 @@ class SolverAgent:
 
             if tool_requested == _CALL_CALCULATOR_FUNCTION_NAME:
                 compute_request = tool_arguments["arithmetic_task"]
-                compute_result = self.calculator_agent.serve_compute_request(compute_request)
+                logger.log(f"LLM requested compute request: {compute_request}")
+                try:
+                    compute_result = self.calculator_agent.serve_compute_request(compute_request)
+                except Exception as e:
+                    error_message = f"Computer agent failed: {e}"
+                    logger.log(error_message)
+                    logger.flush_log_to_file()
+                    raise RuntimeError(error_message)
+                logger.log(f"Computer returned: {compute_result}")
 
                 messages.append(completion.message)
                 messages.append({
@@ -105,9 +113,17 @@ class SolverAgent:
                 })
 
             elif tool_requested == _CALL_ANSWER_READY_FUNCTION_NAME:
-                return tool_arguments['output_numerical_value']
+                final_answer = tool_arguments['output_numerical_value']
+                logger.log(f"Solver returned final answer: {final_answer}")
+                logger.flush_log_to_file()
+                return final_answer
             else:
-                raise RuntimeError(f"Invalid tool requested!: {tool_requested}")
+                error_message = f"Invalid tool requested: {tool_requested}"
+                logger.log(error_message)
+                logger.flush_log_to_file()
+                raise RuntimeError(error_message)
 
-
-        raise RuntimeError(f"Solver agent was called {n_times_prompted_agent} times but has not able to complete task.")
+        error_message = f"Solver agent was called {n_times_prompted_agent} times but has not able to complete task."
+        logger.log(error_message)
+        logger.flush_log_to_file()
+        raise RuntimeError(error_message)

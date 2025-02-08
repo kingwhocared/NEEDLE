@@ -1,0 +1,11 @@
+2025-02-08 14:53:04,013 - INFO - Starting new solve request.
+2025-02-08 14:53:04,013 - INFO - [{'role': 'system', 'content': 'Your task is to solve a question. Each time you need to perform any arithmetics, please use the compute_arithmetic_calculation tool for that.'}, {'role': 'user', 'content': "Please solve: In a student council election, candidate A got 20% of the votes while candidate B got 50% more than candidate A's votes. The rest of the votes was given to candidate C. If there were 100 voters, how many votes did candidate C get?"}]
+2025-02-08 14:53:05,134 - INFO - LLM requested compute request: 20% of 100
+2025-02-08 14:53:05,970 - INFO - Computer returned: 20.0
+2025-02-08 14:53:06,844 - INFO - LLM requested compute request: 50% of 20
+2025-02-08 14:53:07,674 - INFO - Computer returned: 10.0
+2025-02-08 14:53:08,604 - INFO - LLM requested compute request: 20 + 10
+2025-02-08 14:53:09,935 - INFO - Computer returned: 30
+2025-02-08 14:53:10,954 - INFO - LLM requested compute request: 100 - 30
+2025-02-08 14:53:11,573 - INFO - Computer returned: 70
+2025-02-08 14:53:12,745 - INFO - Solver returned final answer: 70

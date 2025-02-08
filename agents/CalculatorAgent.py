@@ -20,7 +20,7 @@ class CalculatorAgent:
             res = eval(python_formatted_format)
         except Exception as e:
             print(f"Failed to evaluate expression: {python_formatted_format}")
-            raise e
+            raise
         return res
 
 
