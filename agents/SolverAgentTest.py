@@ -15,8 +15,9 @@ class SolverAgentTests(unittest.TestCase):
         self.syn_arithmetics_dataset = SyntheticArithmetics()
         self.dataset_GSM8K = GSM8K()
 
-    def _test_a_problem_solved_by_solver_agent(self, q, a):
-        logger = MyLoggerForFailures(q)
+    def _test_a_problem_solved_by_solver_agent(self, q, a, logger=None):
+        if logger is None:
+            logger = MyLoggerForFailures(q)
         starting_test_message = f'Testing a solver agent request: \nq: {q}, a: {a}'
         print(starting_test_message)
         logger.log(starting_test_message)
@@ -48,11 +49,12 @@ class SolverAgentTests(unittest.TestCase):
     def test_solver_agent_on_GSM8K(self):
         n_tests = 0
         n_successes = 0
+        logger = MyLoggerForFailures(f"test_solver_agent_on_GSM8K")
         for _ in tqdm(range(100), desc="Processing"):
             try:
                 q, a = self.dataset_GSM8K.get_next_GSM_question()
                 n_tests += 1
-                was_successful = self._test_a_problem_solved_by_solver_agent(q, a)
+                was_successful = self._test_a_problem_solved_by_solver_agent(q, a, logger=logger)
                 if was_successful:
                     n_successes += 1
             except Exception as e:
