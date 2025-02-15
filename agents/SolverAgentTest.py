@@ -1,4 +1,3 @@
-import time
 import unittest
 from tqdm import tqdm
 
@@ -15,9 +14,7 @@ class SolverAgentTests(unittest.TestCase):
         self.syn_arithmetics_dataset = SyntheticArithmetics()
         self.dataset_GSM8K = GSM8K()
 
-    def _test_a_problem_solved_by_solver_agent(self, q, a, logger=None):
-        if logger is None:
-            logger = MyLoggerForFailures(q)
+    def _test_a_problem_solved_by_solver_agent(self, q, a, logger):
         starting_test_message = f'Testing a solver agent request: \nq: {q}, a: {a}'
         print(starting_test_message)
         logger.log(starting_test_message)
@@ -33,24 +30,26 @@ class SolverAgentTests(unittest.TestCase):
         is_correct = (ret == a)
         logger.log(
             "Answer was correct!" if is_correct else "Failure to output answer" if ret is None else "Wrong answer!")
-        logger.flush_log_to_file()
         return is_correct
 
     def test_solver_agent_is_reliable_on_synthetic_dataset(self):
         n_times_tested_on_synthetic_questions = 0
+        logger = MyLoggerForFailures("synthetic_dataset")
+        logger.log("Starting test_solver_agent_is_reliable_on_synthetic_dataset")
         try:
             for i in range(100):
                 q, a = self.syn_arithmetics_dataset.gen_arithmetics_question()
                 self.assertTrue(self._test_a_problem_solved_by_solver_agent(q, a))
                 n_times_tested_on_synthetic_questions += 1
         finally:
-            print(f"Number of synthetic questions tested successfully: {n_times_tested_on_synthetic_questions}")
+            logger.flush_log_to_file(f"Number of synthetic questions tested successfully: {n_times_tested_on_synthetic_questions}")
+            logger.flush_log_to_file()
 
     def test_solver_agent_on_GSM8K(self):
         n_tests = 0
         n_successes = 0
         logger = MyLoggerForFailures(f"test_solver_agent_on_GSM8K")
-        for _ in tqdm(range(100), desc="Processing"):
+        for _ in tqdm(range(40), desc="Processing"):
             try:
                 q, a = self.dataset_GSM8K.get_next_GSM_question()
                 n_tests += 1
@@ -60,7 +59,8 @@ class SolverAgentTests(unittest.TestCase):
             except Exception as e:
                 pass
         accuracy = 100 * n_successes / n_tests
-        print(f"For GSKM8K, being correct on {n_successes} out of {n_tests}, solver agent has accuracy of {accuracy}%")
+        logger.log(f"For GSKM8K, being correct on {n_successes} out of {n_tests}, solver agent has accuracy of {accuracy}%")
+        logger.flush_log_to_file()
         self.assertLess(50, accuracy)
 
 

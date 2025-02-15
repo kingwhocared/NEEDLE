@@ -19,12 +19,14 @@ class SolverAgent:
                                    "This calculator only supports basic arithmetic: "
                                    "addition, subtraction, multiplication, and division. "
                                    "Please provide an expression that uses only numerical values "
-                                   "and these four basic operations.",
+                                   "and these four basic operations."
+                                   "It is preferred you do not use more than a single operation.",
                     "strict": True,
                     "parameters": {
                         "type": "object",
                         "required": [
-                            "arithmetic_task"
+                            "arithmetic_task",
+                            "purpose_or_meaning",
                         ],
                         "properties": {
                             "arithmetic_task": {
@@ -33,7 +35,14 @@ class SolverAgent:
                                                "addition, subtraction, multiplication, or division "
                                                "(e.g., 'how much is 8 times 9?' or 'divide 12 by 4')."
                                                "No variables, symbols, or literals allowed as input."
-                            }
+                                               "Do not forget about order of operations, use brackets as required."
+                            },
+                            "purpose_or_meaning": {
+                                "type": "string",
+                                "description": "A string describing the purpose or meaning of the expression."
+                                               "For example, for an arithmetic_task of '40 times 3', the meaning"
+                                               " could be 'the number of hours in 3 40-hour work weeks.'"
+                            },
                         },
                         "additionalProperties": False
                     }
@@ -99,7 +108,8 @@ class SolverAgent:
 
             if tool_requested == _CALL_CALCULATOR_FUNCTION_NAME:
                 compute_request = tool_arguments["arithmetic_task"]
-                logger.log(f"LLM requested compute request: {compute_request}")
+                purpose_or_meaning = tool_arguments["purpose_or_meaning"]
+                logger.log(f"LLM requested compute request: {compute_request}, 'purpose_or_meaning': {purpose_or_meaning}")
                 try:
                     compute_result = self.calculator_agent.serve_compute_request(compute_request)
                 except Exception as e:
