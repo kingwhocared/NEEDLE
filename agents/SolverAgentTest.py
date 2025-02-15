@@ -5,7 +5,7 @@ from datasets.SyntheticArithmetics import SyntheticArithmetics
 from datasets.GSM8K import GSM8K
 
 from utils.logging_utils import MyLoggerForFailures
-from agents.SolverAgent import SolverAgent
+from agents.SolverAgentV2 import SolverAgent
 
 
 class SolverAgentTests(unittest.TestCase):
@@ -16,7 +16,6 @@ class SolverAgentTests(unittest.TestCase):
 
     def _test_a_problem_solved_by_solver_agent(self, q, a, logger):
         starting_test_message = f'Testing a solver agent request: \nq: {q}, a: {a}'
-        print(starting_test_message)
         logger.log(starting_test_message)
         try:
             ret = self.solverAgent.serve_solve_request(q, logger=logger)
