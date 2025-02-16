@@ -6,7 +6,7 @@ from utils.logging_utils import MyLoggerForFailures
 
 _CALL_ANSWER_READY_FUNCTION_NAME = "final_answer"
 
-_LIMIT_LLM_CALLS_FOR_SOLVER_AGENT = 20
+_LIMIT_LLM_CALLS_FOR_SOLVER_AGENT = 15
 
 class _LogicalErrorInspection(BaseModel):
     logical_error_detected: bool
@@ -168,27 +168,28 @@ class SolverAgent:
                     f"LLM requested compute request: {compute_request}, 'request_explanation': {request_explanation}")
 
                 logical_error_detected, logical_error_description = self.inspect_for_logical_error(solve_request, purpose_or_meaning, num1_meaning, num1, num2_meaning, num2, operation)
-                if logical_error_detected:
-                    # return failure and explain the error.
-                    logger.log(f"Detected logical error in request to calculator: {logical_error_description}")
+                try:
+                    compute_result = self.calculator(*compute_request)
+                    logger.log(f"Computer returned: {compute_result}")
                     messages.append({
                         "role": "tool",
                         "tool_call_id": tool_call.id,
-                        "content": logical_error_description
+                        "content": str(compute_result)
                     })
-                else:
-                    try:
-                        compute_result = self.calculator(*compute_request)
-                        logger.log(f"Computer returned: {compute_result}")
+                    if logical_error_detected:
+                        # return failure and explain the error.
+                        logger.log(f"Detected logical error in request to calculator: {logical_error_description}")
                         messages.append({
-                            "role": "tool",
-                            "tool_call_id": tool_call.id,
-                            "content": str(compute_result)
+                            "role": "user",
+                            "content": f"Here is some feedback you may choose to deem irrelevant and ignore, "
+                                       f"there is a potential flaw in your previous tool call: "
+                                       f"{logical_error_description}"
                         })
-                    except Exception as e:
-                        error_message = f"Computer agent failed: {e}"
-                        logger.log(error_message)
-                        raise RuntimeError(error_message)
+
+                except Exception as e:
+                    error_message = f"Computer agent failed: {e}"
+                    logger.log(error_message)
+                    raise RuntimeError(error_message)
 
 
             elif tool_requested == _CALL_ANSWER_READY_FUNCTION_NAME:
