@@ -14,7 +14,7 @@ class SolverAgentTests(unittest.TestCase):
     def setUp(self):
         self.dataset_GSM8K = GSM8K()
 
-    def test_solver_agent_on_GSM8K(self):
+    def test_nakedLLM_on_GSM8K(self):
         n_tests = 0
         n_successes = 0
         logger = MyLoggerForFailures(f"test_raw_llm_on_GSM8K")

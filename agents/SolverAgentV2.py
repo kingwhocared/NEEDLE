@@ -1,16 +1,20 @@
 from pydantic import BaseModel
+import numpy as np
 
-from utils.MyOpenAIUtils import OPENAI_CLIENT, get_openai_inference_with_schema
+from utils.MyOpenAIUtils import OPENAI_CLIENT
 from CalculatorAgent import CalculatorAgent
 from utils.logging_utils import MyLoggerForFailures
 
 _CALL_ANSWER_READY_FUNCTION_NAME = "final_answer"
+_SOLVE_LINEAR_EQUATION_FUNCTION_NAME = "solve_linear_equations"
 
 _LIMIT_LLM_CALLS_FOR_SOLVER_AGENT = 15
+
 
 class _LogicalErrorInspection(BaseModel):
     logical_error_detected: bool
     logical_error_description: str
+
 
 class SolverAgent:
     @staticmethod
@@ -31,6 +35,33 @@ class SolverAgent:
         except ValueError:
             return "Error: Invalid numbers"
 
+    @staticmethod
+    def solve_linear_equations(coefficients, constants):
+        """
+        Solves a system of linear equations using NumPy.
+
+        Parameters:
+        coefficients (list of lists): A 2D list representing the coefficient matrix.
+        constants (list): A 1D list representing the constants.
+
+        Returns:
+        dict: A solution dictionary or an error message.
+        """
+        try:
+            A = np.array(coefficients, dtype=float)
+            B = np.array(constants, dtype=float)
+
+            # Check if the system is solvable
+            if np.linalg.det(A) == 0:
+                return {"error": "The system has no unique solution (singular matrix)."}
+
+            # Solve the system
+            solution = np.linalg.solve(A, B)
+            return {"solution": solution.tolist()}
+
+        except Exception as e:
+            return {"error": str(e)}
+
     def __init__(self):
         self.tools = [
             {
@@ -43,9 +74,9 @@ class SolverAgent:
                         "properties": {
                             "meaning of operation result": {
                                 "type": "string",
-                                "description": "A string describing the purpose or meaning of the value of the operation."
-                                # "For example, for an arithmetic operation of '40 multiply 3', the meaning"
-                                # " could be 'the number of hours in 3 40-hour work weeks.'"
+                                "description": "A string describing the meaning of the value of the operation."
+                                               "For example, for an arithmetic operation of '40 multiply 3', the meaning"
+                                               " could be 'the number of hours in 3 40-hour work weeks.'"
                             },
                             "operation": {
                                 "type": "string",
@@ -69,7 +100,8 @@ class SolverAgent:
                                 "description": "The second number"
                             },
                         },
-                        "required": ["meaning of operation result", "operation", "num1 meaning", "num1", "num2 meaning", "num2"]
+                        "required": ["meaning of operation result", "operation", "num1 meaning", "num1", "num2 meaning",
+                                     "num2"]
                     }
                 }
             }
@@ -101,36 +133,46 @@ class SolverAgent:
                     }
                 }
             }
+            ,
+            {
+                "type": "function",
+                "function": {
+                    "name": _SOLVE_LINEAR_EQUATION_FUNCTION_NAME,
+                    "description": "Solves a system of linear equations.",
+                    "strict": True,
+                    "parameters": {
+                        "type": "object",
+                        "required": ["coefficients", "constants"],
+                        "properties": {
+                            "coefficients": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": {"type": "number"}
+                                },
+                                "description": "Coefficient matrix of the system."
+                            },
+                            "constants": {
+                                "type": "array",
+                                "items": {"type": "number"},
+                                "description": "Constants of the system."
+                            }
+                        },
+                        "additionalProperties": False
+                    }
+                }
+            }
         ]
         self.calculator_agent = CalculatorAgent()
-
-    @staticmethod
-    def inspect_for_logical_error(context, purpose_of_compute_req, num_1_desc, num_1, num_2_desc, num_2, operation):
-        words = {
-            "add": "add",
-            "subtract": "subtract",
-            "multiply": "multiply by",
-            "divide": "divide by"
-        }
-        operation_desc = words.get(operation, "unknown operation")
-        proposal_desc = f"Take {num_1_desc}({num_1}) and {operation_desc} {num_2_desc}({num_2})"
-        inspection_res = get_openai_inference_with_schema(
-            f"Context: {context}. "
-            f"Without attempting any arithmetic computation, "
-            f"Determine if the following has a fatal logical error: "
-            f"In order to calculate {purpose_of_compute_req}: " +
-            proposal_desc
-            ,
-            _LogicalErrorInspection)
-        return inspection_res.logical_error_detected, inspection_res.logical_error_description
-
 
     def serve_solve_request(self, solve_request, logger: MyLoggerForFailures):
         messages = [
             {"role": "system",
-             "content": "Your task is to solve a question. "
-                        "Each time you need to perform any arithmetics, "
-                        f"please use the calculator tool for that."},
+             "content": "Your task is to solve a question."
+                        # " Each time you need to perform any arithmetics, "
+                        # f"you may choose to use the calculator tool for that. "
+                        # f"You also have access to a linear equation tool."
+             },
             {"role": "user", "content": f"Please solve: {solve_request}"}
         ]
         logger.log("Starting new solve request.")
@@ -167,7 +209,6 @@ class SolverAgent:
                 logger.log(
                     f"LLM requested compute request: {compute_request}, 'request_explanation': {request_explanation}")
 
-                logical_error_detected, logical_error_description = self.inspect_for_logical_error(solve_request, purpose_or_meaning, num1_meaning, num1, num2_meaning, num2, operation)
                 try:
                     compute_result = self.calculator(*compute_request)
                     logger.log(f"Computer returned: {compute_result}")
@@ -176,21 +217,24 @@ class SolverAgent:
                         "tool_call_id": tool_call.id,
                         "content": str(compute_result)
                     })
-                    if logical_error_detected:
-                        # return failure and explain the error.
-                        logger.log(f"Detected logical error in request to calculator: {logical_error_description}")
-                        messages.append({
-                            "role": "user",
-                            "content": f"Here is some feedback you may choose to deem irrelevant and ignore, "
-                                       f"there is a potential flaw in your previous tool call: "
-                                       f"{logical_error_description}"
-                        })
-
                 except Exception as e:
                     error_message = f"Computer agent failed: {e}"
                     logger.log(error_message)
                     raise RuntimeError(error_message)
 
+            elif tool_requested == _SOLVE_LINEAR_EQUATION_FUNCTION_NAME:
+                constants = tool_arguments["constants"]
+                coefficients = tool_arguments["coefficients"]
+
+                logger.log(
+                    f"LLM requested linear eq request: {lin_eq_result}, 'request_explanation': {lin_eq_result}")
+                lin_eq_result = self.solve_linear_equations(coefficients, constants)
+                logger.log(f"Linear eq tool returned: {lin_eq_result}")
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": str(lin_eq_result)
+                })
 
             elif tool_requested == _CALL_ANSWER_READY_FUNCTION_NAME:
                 final_answer = tool_arguments['output_numerical_value']
