@@ -6,7 +6,6 @@ from CalculatorAgent import CalculatorAgent
 from utils.logging_utils import MyLoggerForFailures
 
 _CALL_ANSWER_READY_FUNCTION_NAME = "final_answer"
-_SOLVE_LINEAR_EQUATION_FUNCTION_NAME = "solve_linear_equations"
 
 _LIMIT_LLM_CALLS_FOR_SOLVER_AGENT = 15
 
@@ -34,33 +33,6 @@ class SolverAgent:
                 return "Error: Invalid operation"
         except ValueError:
             return "Error: Invalid numbers"
-
-    @staticmethod
-    def solve_linear_equations(coefficients, constants):
-        """
-        Solves a system of linear equations using NumPy.
-
-        Parameters:
-        coefficients (list of lists): A 2D list representing the coefficient matrix.
-        constants (list): A 1D list representing the constants.
-
-        Returns:
-        dict: A solution dictionary or an error message.
-        """
-        try:
-            A = np.array(coefficients, dtype=float)
-            B = np.array(constants, dtype=float)
-
-            # Check if the system is solvable
-            if np.linalg.det(A) == 0:
-                return {"error": "The system has no unique solution (singular matrix)."}
-
-            # Solve the system
-            solution = np.linalg.solve(A, B)
-            return {"solution": solution.tolist()}
-
-        except Exception as e:
-            return {"error": str(e)}
 
     def __init__(self):
         self.tools = [
@@ -133,35 +105,6 @@ class SolverAgent:
                     }
                 }
             }
-            ,
-            {
-                "type": "function",
-                "function": {
-                    "name": _SOLVE_LINEAR_EQUATION_FUNCTION_NAME,
-                    "description": "Solves a system of linear equations.",
-                    "strict": True,
-                    "parameters": {
-                        "type": "object",
-                        "required": ["coefficients", "constants"],
-                        "properties": {
-                            "coefficients": {
-                                "type": "array",
-                                "items": {
-                                    "type": "array",
-                                    "items": {"type": "number"}
-                                },
-                                "description": "Coefficient matrix of the system."
-                            },
-                            "constants": {
-                                "type": "array",
-                                "items": {"type": "number"},
-                                "description": "Constants of the system."
-                            }
-                        },
-                        "additionalProperties": False
-                    }
-                }
-            }
         ]
         self.calculator_agent = CalculatorAgent()
 
@@ -221,20 +164,6 @@ class SolverAgent:
                     error_message = f"Computer agent failed: {e}"
                     logger.log(error_message)
                     raise RuntimeError(error_message)
-
-            elif tool_requested == _SOLVE_LINEAR_EQUATION_FUNCTION_NAME:
-                constants = tool_arguments["constants"]
-                coefficients = tool_arguments["coefficients"]
-
-                logger.log(
-                    f"LLM requested linear eq request: {lin_eq_result}, 'request_explanation': {lin_eq_result}")
-                lin_eq_result = self.solve_linear_equations(coefficients, constants)
-                logger.log(f"Linear eq tool returned: {lin_eq_result}")
-                messages.append({
-                    "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "content": str(lin_eq_result)
-                })
 
             elif tool_requested == _CALL_ANSWER_READY_FUNCTION_NAME:
                 final_answer = tool_arguments['output_numerical_value']
