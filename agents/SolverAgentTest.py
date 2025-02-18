@@ -48,16 +48,17 @@ class SolverAgentTests(unittest.TestCase):
         n_tests = 0
         n_successes = 0
         logger = MyLoggerForFailures(f"test_solver_agent_on_GSM8K")
-        for _ in tqdm(range(40), desc="Processing"):
+        for _ in tqdm(range(100), desc="Processing"):
             try:
                 q, a = self.dataset_GSM8K.get_next_GSM_question()
                 n_tests += 1
                 was_successful = self._test_a_problem_solved_by_solver_agent(q, a, logger=logger)
                 if was_successful:
                     n_successes += 1
+                accuracy = 100 * n_successes / n_tests
+                print(f"Accuracy: {accuracy}")
             except Exception as e:
                 pass
-        accuracy = 100 * n_successes / n_tests
         logger.log(f"For GSKM8K, being correct on {n_successes} out of {n_tests}, solver agent has accuracy of {accuracy}%")
         logger.flush_log_to_file()
         self.assertLess(50, accuracy)

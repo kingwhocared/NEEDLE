@@ -50,30 +50,41 @@ class SolverAgent:
                                                "For example, for an arithmetic operation of '40 multiply 3', the meaning"
                                                " could be 'the number of hours in 3 40-hour work weeks.'"
                             },
+                            "num1": {
+                                "type": "object",
+                                "properties": {
+                                    "num1 meaning": {
+                                        "type": "string",
+                                        "description": "Meaning of num1"
+                                    },
+                                    "numeric value": {
+                                        "type": "number",
+                                        "description": "Numeric value of num1"
+                                    },
+                                },
+                                "required": ["num1 meaning", "numeric value"]
+                            },
                             "operation": {
                                 "type": "string",
                                 "enum": ["add", "subtract", "multiply", "divide"],
                                 "description": "The arithmetic operation to perform"
                             },
-                            "num1 meaning": {
-                                "type": "string",
-                                "description": "Meaning of the first number"
-                            },
-                            "num1": {
-                                "type": "number",
-                                "description": "The first number"
-                            },
-                            "num2 meaning": {
-                                "type": "string",
-                                "description": "Meaning of the second number"
-                            },
                             "num2": {
-                                "type": "number",
-                                "description": "The second number"
+                                "type": "object",
+                                "properties": {
+                                    "num2 meaning": {
+                                        "type": "string",
+                                        "description": "Meaning of num2"
+                                    },
+                                    "numeric value": {
+                                        "type": "number",
+                                        "description": "Numeric value of num2"
+                                    },
+                                },
+                                "required": ["num2 meaning", "numeric value"]
                             },
                         },
-                        "required": ["meaning of operation result", "operation", "num1 meaning", "num1", "num2 meaning",
-                                     "num2"]
+                        "required": ["meaning of operation result", "num1", "operation", "num2"]
                     }
                 }
             }
@@ -111,11 +122,9 @@ class SolverAgent:
     def serve_solve_request(self, solve_request, logger: MyLoggerForFailures):
         messages = [
             {"role": "system",
-             "content": "Your task is to solve a question."
-                        # " Each time you need to perform any arithmetics, "
-                        # f"you may choose to use the calculator tool for that. "
-                        # f"You also have access to a linear equation tool."
-             },
+             "content": "Your task is to solve a question. "
+                        "Each time you need to perform any arithmetics, "
+                        f"please use the calculator tool for that."},
             {"role": "user", "content": f"Please solve: {solve_request}"}
         ]
         logger.log("Starting new solve request.")
@@ -142,12 +151,12 @@ class SolverAgent:
                 messages.append(completion.message)
 
                 operation = tool_arguments["operation"]
-                num1 = tool_arguments["num1"]
-                num2 = tool_arguments["num2"]
+                num1 = tool_arguments["num1"]["numeric value"]
+                num2 = tool_arguments["num2"]["numeric value"]
                 compute_request = (operation, num1, num2)
                 purpose_or_meaning = tool_arguments["meaning of operation result"]
-                num1_meaning = tool_arguments["num1 meaning"]
-                num2_meaning = tool_arguments["num2 meaning"]
+                num1_meaning = tool_arguments["num1"]["num1 meaning"]
+                num2_meaning = tool_arguments["num2"]["num2 meaning"]
                 request_explanation = (purpose_or_meaning, num1_meaning, num2_meaning)
                 logger.log(
                     f"LLM requested compute request: {compute_request}, 'request_explanation': {request_explanation}")
