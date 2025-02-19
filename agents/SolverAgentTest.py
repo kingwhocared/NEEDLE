@@ -5,7 +5,7 @@ from datasets.SyntheticArithmetics import SyntheticArithmetics
 from datasets.GSM8K import GSM8K
 
 from utils.logging_utils import MyLoggerForFailures
-from agents.SolverAgentV2 import SolverAgent
+from agents.SolverAgent import SolverAgent
 
 
 class SolverAgentTests(unittest.TestCase):

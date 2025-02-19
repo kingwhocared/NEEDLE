@@ -1,53 +1,95 @@
+from pydantic import BaseModel
+import numpy as np
+
 from utils.MyOpenAIUtils import OPENAI_CLIENT
 from CalculatorAgent import CalculatorAgent
 from utils.logging_utils import MyLoggerForFailures
 
-_CALL_CALCULATOR_FUNCTION_NAME = "simple_calculator"
 _CALL_ANSWER_READY_FUNCTION_NAME = "final_answer"
 
-_LIMIT_LLM_CALLS_FOR_SOLVER_AGENT = 20
+_LIMIT_LLM_CALLS_FOR_SOLVER_AGENT = 30
+
+_GPT_MODEL = "gpt-4o-mini"
+
+class _LogicalErrorInspection(BaseModel):
+    logical_error_detected: bool
+    logical_error_description: str
 
 
 class SolverAgent:
+    @staticmethod
+    def calculator(operation, num1, num2):
+        try:
+            num1 = float(num1)
+            num2 = float(num2)
+            if operation == "add":
+                return num1 + num2
+            elif operation == "subtract":
+                return num1 - num2
+            elif operation == "multiply":
+                return num1 * num2
+            elif operation == "divide":
+                return num1 / num2 if num2 != 0 else "Error: Division by zero"
+            else:
+                return "Error: Invalid operation"
+        except ValueError:
+            return "Error: Invalid numbers"
+
     def __init__(self):
         self.tools = [
             {
                 "type": "function",
                 "function": {
-                    "name": _CALL_CALCULATOR_FUNCTION_NAME,
-                    "description": "Compute a simple arithmetic expression and return the resulting number. "
-                                   "This calculator only supports basic arithmetic: "
-                                   "addition, subtraction, multiplication, and division. "
-                                   "Please provide an expression that uses only numerical values "
-                                   "and these four basic operations."
-                                   "It is preferred you do not use more than a single operation.",
-                    "strict": True,
+                    "name": "calculator",
+                    "description": "Perform basic arithmetic operations",
                     "parameters": {
                         "type": "object",
-                        "required": [
-                            "arithmetic_task",
-                            "purpose_or_meaning",
-                        ],
                         "properties": {
-                            "arithmetic_task": {
+                            "meaning of operation result": {
                                 "type": "string",
-                                "description": "A string representing a valid arithmetic expression using only "
-                                               "addition, subtraction, multiplication, or division "
-                                               "(e.g., 'how much is 8 times 9?' or 'divide 12 by 4')."
-                                               "No variables, symbols, or literals allowed as input."
-                                               "Do not forget about order of operations, use brackets as required."
-                            },
-                            "purpose_or_meaning": {
-                                "type": "string",
-                                "description": "A string describing the purpose or meaning of the expression."
-                                               "For example, for an arithmetic_task of '40 times 3', the meaning"
+                                "description": "A string describing the meaning of the value of the operation."
+                                               "For example, for an arithmetic operation of '40 multiply 3', the meaning"
                                                " could be 'the number of hours in 3 40-hour work weeks.'"
                             },
+                            "num1": {
+                                "type": "object",
+                                "properties": {
+                                    "num1 meaning": {
+                                        "type": "string",
+                                        "description": "Meaning of num1"
+                                    },
+                                    "numeric value": {
+                                        "type": "number",
+                                        "description": "Numeric value of num1"
+                                    },
+                                },
+                                "required": ["num1 meaning", "numeric value"]
+                            },
+                            "operation": {
+                                "type": "string",
+                                "enum": ["add", "subtract", "multiply", "divide"],
+                                "description": "The arithmetic operation to perform"
+                            },
+                            "num2": {
+                                "type": "object",
+                                "properties": {
+                                    "num2 meaning": {
+                                        "type": "string",
+                                        "description": "Meaning of num2"
+                                    },
+                                    "numeric value": {
+                                        "type": "number",
+                                        "description": "Numeric value of num2"
+                                    },
+                                },
+                                "required": ["num2 meaning", "numeric value"]
+                            },
                         },
-                        "additionalProperties": False
+                        "required": ["meaning of operation result", "num1", "operation", "num2"]
                     }
                 }
-            },
+            }
+            ,
             {
                 "type": "function",
                 "function": {
@@ -83,7 +125,7 @@ class SolverAgent:
             {"role": "system",
              "content": "Your task is to solve a question. "
                         "Each time you need to perform any arithmetics, "
-                        f"please use the {_CALL_CALCULATOR_FUNCTION_NAME} tool for that."},
+                        f"please use the calculator tool for that."},
             {"role": "user", "content": f"Please solve: {solve_request}"}
         ]
         logger.log("Starting new solve request.")
@@ -92,8 +134,21 @@ class SolverAgent:
         n_times_prompted_agent = 0
 
         while n_times_prompted_agent < _LIMIT_LLM_CALLS_FOR_SOLVER_AGENT:
+            # prepend a thinking request for next step
+            thought_request = {
+                "role": "user",
+                "content": "Think about your next step."
+            }
             completion = OPENAI_CLIENT.chat.completions.create(
-                model="gpt-4o-mini",
+                model=_GPT_MODEL,
+                messages=messages + [thought_request],
+            )
+            thought_message = completion.choices[0].message
+            logger.log(f"LLM next thought: {thought_message.content}")
+            messages.append(thought_message)
+
+            completion = OPENAI_CLIENT.chat.completions.create(
+                model=_GPT_MODEL,
                 messages=messages,
                 tools=self.tools,
                 tool_choice='required',
@@ -106,24 +161,43 @@ class SolverAgent:
             tool_requested = tool_call.function.name
             tool_arguments = eval(tool_call.function.arguments)
 
-            if tool_requested == _CALL_CALCULATOR_FUNCTION_NAME:
-                compute_request = tool_arguments["arithmetic_task"]
-                purpose_or_meaning = tool_arguments["purpose_or_meaning"]
-                logger.log(f"LLM requested compute request: {compute_request}, 'purpose_or_meaning': {purpose_or_meaning}")
+            if tool_requested == "calculator":
+                messages.append(completion.message)
+
+                operation = tool_arguments["operation"]
+
                 try:
-                    compute_result = self.calculator_agent.serve_compute_request(compute_request)
+                    num1 = tool_arguments["num1"]["numeric value"]
+                    num2 = tool_arguments["num2"]["numeric value"]
+                    purpose_or_meaning = tool_arguments["meaning of operation result"]
+                    num1_meaning = tool_arguments["num1"]["num1 meaning"]
+                    num2_meaning = tool_arguments["num2"]["num2 meaning"]
+                except KeyError as e:
+                    logger.log(f"Error in calculator formatting request: {e}")
+                    messages.append({
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "content": f"Error in formatting, missing param: {e}"
+                    })
+                    continue
+
+                compute_request = (operation, num1, num2)
+                request_explanation = (purpose_or_meaning, num1_meaning, num2_meaning)
+                logger.log(
+                    f"LLM requested compute request: {compute_request}, 'request_explanation': {request_explanation}")
+
+                try:
+                    compute_result = self.calculator(*compute_request)
+                    logger.log(f"Calculator returned: {compute_result}")
+                    messages.append({
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "content": str(compute_result)
+                    })
                 except Exception as e:
-                    error_message = f"Computer agent failed: {e}"
+                    error_message = f"calculator failed: {e}"
                     logger.log(error_message)
                     raise RuntimeError(error_message)
-                logger.log(f"Computer returned: {compute_result}")
-
-                messages.append(completion.message)
-                messages.append({
-                    "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "content": str(compute_result)
-                })
 
             elif tool_requested == _CALL_ANSWER_READY_FUNCTION_NAME:
                 final_answer = tool_arguments['output_numerical_value']
