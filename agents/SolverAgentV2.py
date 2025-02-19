@@ -165,12 +165,23 @@ class SolverAgent:
                 messages.append(completion.message)
 
                 operation = tool_arguments["operation"]
-                num1 = tool_arguments["num1"]["numeric value"]
-                num2 = tool_arguments["num2"]["numeric value"]
+
+                try:
+                    num1 = tool_arguments["num1"]["numeric value"]
+                    num2 = tool_arguments["num2"]["numeric value"]
+                    purpose_or_meaning = tool_arguments["meaning of operation result"]
+                    num1_meaning = tool_arguments["num1"]["num1 meaning"]
+                    num2_meaning = tool_arguments["num2"]["num2 meaning"]
+                except KeyError as e:
+                    logger.log(f"Error in calculator formatting request: {e}")
+                    messages.append({
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "content": f"Error in formatting, missing param: {e}"
+                    })
+                    continue
+
                 compute_request = (operation, num1, num2)
-                purpose_or_meaning = tool_arguments["meaning of operation result"]
-                num1_meaning = tool_arguments["num1"]["num1 meaning"]
-                num2_meaning = tool_arguments["num2"]["num2 meaning"]
                 request_explanation = (purpose_or_meaning, num1_meaning, num2_meaning)
                 logger.log(
                     f"LLM requested compute request: {compute_request}, 'request_explanation': {request_explanation}")
