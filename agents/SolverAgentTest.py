@@ -48,7 +48,7 @@ class SolverAgentTests(unittest.TestCase):
         n_tests = 0
         n_successes = 0
         logger = MyLoggerForFailures(f"test_solver_agent_on_GSM8K")
-        for _ in tqdm(range(100), desc="Processing"):
+        for _ in tqdm(range(150), desc="Processing"):
             try:
                 q, a = self.dataset_GSM8K.get_next_GSM_question()
                 n_tests += 1

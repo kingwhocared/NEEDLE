@@ -7,8 +7,9 @@ from utils.logging_utils import MyLoggerForFailures
 
 _CALL_ANSWER_READY_FUNCTION_NAME = "final_answer"
 
-_LIMIT_LLM_CALLS_FOR_SOLVER_AGENT = 15
+_LIMIT_LLM_CALLS_FOR_SOLVER_AGENT = 30
 
+_GPT_MODEL = "gpt-4o-mini"
 
 class _LogicalErrorInspection(BaseModel):
     logical_error_detected: bool
@@ -133,8 +134,21 @@ class SolverAgent:
         n_times_prompted_agent = 0
 
         while n_times_prompted_agent < _LIMIT_LLM_CALLS_FOR_SOLVER_AGENT:
+            # prepend a thinking request for next step
+            thought_request = {
+                "role": "user",
+                "content": "Think about your next step."
+            }
             completion = OPENAI_CLIENT.chat.completions.create(
-                model="gpt-4o-mini",
+                model=_GPT_MODEL,
+                messages=messages + [thought_request],
+            )
+            thought_message = completion.choices[0].message
+            logger.log(f"LLM next thought: {thought_message.content}")
+            messages.append(thought_message)
+
+            completion = OPENAI_CLIENT.chat.completions.create(
+                model=_GPT_MODEL,
                 messages=messages,
                 tools=self.tools,
                 tool_choice='required',
