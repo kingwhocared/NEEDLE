@@ -22,4 +22,14 @@ class GSM8K:
         self._cursor += 1
         self._cursor %= self.len_dataset
 
-        return d['question'], int(d['answer'])
+        try:
+            return d['question'], int(d['answer'].replace(",", ""))
+        except Exception as e:
+            print(f"Exception at getting next GSM questions: {e}")
+            raise
+
+    def get_question_with_prefix(self, prefix):
+        for q in self.dataset:
+            if q['question'].startswith(prefix):
+                return q['question'], int(q['answer'])
+        raise RuntimeError("No such question found!")

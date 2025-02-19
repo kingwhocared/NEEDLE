@@ -184,7 +184,7 @@ class SolverAgent:
                         "content": str(compute_result)
                     })
                 except Exception as e:
-                    error_message = f"Computer agent failed: {e}"
+                    error_message = f"calculator failed: {e}"
                     logger.log(error_message)
                     raise RuntimeError(error_message)
 
