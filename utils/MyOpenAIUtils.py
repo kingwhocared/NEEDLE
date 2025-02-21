@@ -25,3 +25,6 @@ def get_openai_inference_with_schema(query, requested_schema):
     )
 
     return completion.choices[0].message.parsed
+
+
+_GPT_MODEL = "gpt-4o-mini"

@@ -1,15 +1,12 @@
 from pydantic import BaseModel
-import numpy as np
 
-from utils.MyOpenAIUtils import OPENAI_CLIENT
-from CalculatorAgent import CalculatorAgent
+from utils.MyOpenAIUtils import OPENAI_CLIENT, _GPT_MODEL
 from utils.logging_utils import MyLoggerForFailures
 
 _CALL_ANSWER_READY_FUNCTION_NAME = "final_answer"
 
 _LIMIT_LLM_CALLS_FOR_SOLVER_AGENT = 30
 
-_GPT_MODEL = "gpt-4o-mini"
 
 class _LogicalErrorInspection(BaseModel):
     logical_error_detected: bool
@@ -118,7 +115,6 @@ class SolverAgent:
                 }
             }
         ]
-        self.calculator_agent = CalculatorAgent()
 
     def serve_solve_request(self, solve_request, logger: MyLoggerForFailures):
         messages = [
@@ -202,7 +198,8 @@ class SolverAgent:
             elif tool_requested == _CALL_ANSWER_READY_FUNCTION_NAME:
                 final_answer = tool_arguments['output_numerical_value']
                 logger.log(f"Solver returned final answer: {final_answer}")
-                return final_answer
+                messages.append(completion.message)
+                return final_answer, messages
             else:
                 error_message = f"Invalid tool requested: {tool_requested}"
                 logger.log(error_message)

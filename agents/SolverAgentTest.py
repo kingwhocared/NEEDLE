@@ -18,7 +18,7 @@ class SolverAgentTests(unittest.TestCase):
         starting_test_message = f'Testing a solver agent request: \nq: {q}, a: {a}'
         logger.log(starting_test_message)
         try:
-            ret = self.solverAgent.serve_solve_request(q, logger=logger)
+            ret, _ = self.solverAgent.serve_solve_request(q, logger=logger)
             print(f'SolverAgent returned: {ret}')
         except Exception as e:
             error_message = f"Solver agent serve_solve_request threw an exception!: {e}"
