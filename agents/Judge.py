@@ -2,7 +2,7 @@ import copy
 
 from utils.MyOpenAIUtils import OPENAI_CLIENT, _GPT_MODEL, get_openai_inference_with_schema
 
-_LIMIT_LLM_CALLS_FOR_INVESTIGATION = 5
+_LIMIT_INVESTIGATION_ROUNDS = 4
 _CONCLUSION_REACHED_FUNC_NAME = "reached_conclusion"
 
 
@@ -105,43 +105,53 @@ class Judge:
 
         n_times_prompted_investigation = 0
 
-        # ask the investigator
-        messages_for_interrogator.append({
-            "role": "user",
-            "content": "Generate a question to the solver to help understand "
-                       "if there was an error in the solution."
-        })
+        while n_times_prompted_investigation < _LIMIT_INVESTIGATION_ROUNDS:
+            # ask the investigator
+            if n_times_prompted_investigation == 0:
+                messages_for_interrogator.append({
+                    "role": "user",
+                    "content": "Begin your investigation. "
+                               "Generate a question to the solver to help understand "
+                               "if there was an error in the solution."
+                })
+            else:
+                messages_for_interrogator.append({
+                    "content": "Continue your investigation.",
+                    "role": "user"
+                })
+            n_times_prompted_investigation += 1
 
-        completion = OPENAI_CLIENT.chat.completions.create(
-            model=_GPT_MODEL,
-            messages=messages_for_interrogator,
-        )
+            completion = OPENAI_CLIENT.chat.completions.create(
+                model=_GPT_MODEL,
+                messages=messages_for_interrogator,
+            )
 
-        completion = completion.choices[0]
-        q_to_solver = completion.message.content
-        messages_for_interrogator.append(completion.message)
-        logger.log(f"Question to solver: {q_to_solver}")
+            completion = completion.choices[0]
+            q_to_solver = completion.message.content
+            messages_for_interrogator.append(completion.message)
+            logger.log(f"Question to solver: {q_to_solver}")
 
-        messages_for_solver.append({
-            "role": "user",
-            "content": q_to_solver,
-        })
+            messages_for_solver.append({
+                "role": "user",
+                "content": q_to_solver,
+            })
 
-        completion = OPENAI_CLIENT.chat.completions.create(
-            model=_GPT_MODEL,
-            messages=messages_for_solver,
-        )
+            completion = OPENAI_CLIENT.chat.completions.create(
+                model=_GPT_MODEL,
+                messages=messages_for_solver,
+            )
 
-        completion = completion.choices[0]
-        a_from_solver = completion.message.content
-        a_from_solver_message = {
-            "content": a_from_solver,
-            "role": "user"
-        }
-        logger.log(f"Answer from solver: {a_from_solver}")
+            completion = completion.choices[0]
+            a_from_solver = completion.message.content
+            a_from_solver_message = {
+                "content": a_from_solver,
+                "role": "user"
+            }
+            logger.log(f"Answer from solver: {a_from_solver}")
 
-        messages_for_interrogator.append(a_from_solver_message)
+            messages_for_interrogator.append(a_from_solver_message)
 
+        # request a report from the interrogator.
         completion = OPENAI_CLIENT.chat.completions.create(
             model=_GPT_MODEL,
             messages=messages_for_interrogator,
