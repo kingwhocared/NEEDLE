@@ -53,14 +53,11 @@ class SolverAgentWithInputChecking(SolverAgent):
             "content": "Reflecting on your thoughts, is the problem answerable?"
         })
 
-        try:
-            completion = OPENAI_CLIENT.beta.chat.completions.parse(
-                model=_GPT_MODEL,
-                messages=messages,
-                response_format=_ProblemIsAnswerableInspectionResult,
-            )
-        except Exception as e:
-            print(e)
+        completion = OPENAI_CLIENT.beta.chat.completions.parse(
+            model=_GPT_MODEL,
+            messages=messages,
+            response_format=_ProblemIsAnswerableInspectionResult,
+        )
 
         inspection_result = completion.choices[0].message.parsed
         inspection_result: _ProblemIsAnswerableInspectionResult
