@@ -1,16 +1,9 @@
-from pydantic import BaseModel
-
 from utils.MyOpenAIUtils import OPENAI_CLIENT, _GPT_MODEL
 from utils.logging_utils import MyLoggerForFailures
 
 _CALL_ANSWER_READY_FUNCTION_NAME = "final_answer"
 
 _LIMIT_LLM_CALLS_FOR_SOLVER_AGENT = 30
-
-
-class _LogicalErrorInspection(BaseModel):
-    logical_error_detected: bool
-    logical_error_description: str
 
 
 class SolverAgent:

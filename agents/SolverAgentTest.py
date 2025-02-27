@@ -3,19 +3,21 @@ from tqdm import tqdm
 
 from datasets.SyntheticArithmetics import SyntheticArithmetics
 from datasets.GSM8K import GSM8K
+from datasets.UWMP import UMWP, UNANSWERABLE
 
 from utils.logging_utils import MyLoggerForFailures
-from agents.SolverAgent import SolverAgent
+from agents.SolverAgentWithInputChecking import SolverAgentWithInputChecking
 
 
 class SolverAgentTests(unittest.TestCase):
     def setUp(self):
-        self.solverAgent = SolverAgent()
+        self.solverAgent = SolverAgentWithInputChecking()
         self.syn_arithmetics_dataset = SyntheticArithmetics()
         self.dataset_GSM8K = GSM8K()
+        self.dataset_UMWP = UMWP()
 
-    def _test_a_problem_solved_by_solver_agent(self, q, a, logger):
-        starting_test_message = f'Testing a solver agent request: \nq: {q}, a: {a}'
+    def _run_a_problem_on_solver_agent(self, q, logger):
+        starting_test_message = f'Testing a solver agent request: \nq: {q}'
         logger.log(starting_test_message)
         try:
             ret, _ = self.solverAgent.serve_solve_request(q, logger=logger)
@@ -26,6 +28,11 @@ class SolverAgentTests(unittest.TestCase):
             logger.log(error_message)
             ret = None
 
+        return ret
+
+    def _test_a_problem_solved_by_solver_agent(self, q, a, logger):
+        ret = self._run_a_problem_on_solver_agent(q, logger)
+        logger.log(f"Ground truth answer is: {a}")
         is_correct = (ret == a)
         logger.log(
             "Answer was correct!" if is_correct else "Failure to output answer" if ret is None else "Wrong answer!")
@@ -69,6 +76,27 @@ class SolverAgentTests(unittest.TestCase):
         was_successful = self._test_a_problem_solved_by_solver_agent(q, a, logger=logger)
         logger.log("Done!")
 
+
+    def test_solver_agent_ability_to_detect_unanswerable(self):
+        n_tests = 0
+        n_successes = 0
+        logger = MyLoggerForFailures(f"test_solver_agent_on_UMWP")
+        for _ in tqdm(range(100), desc="Processing"):
+            try:
+                id, question, answerable, answer = self.dataset_UMWP.get_next_UWMP_question()
+                n_tests += 1
+                solver_thinks_answerable = self.solverAgent.determine_solvable(question, logger)
+                was_successful = (solver_thinks_answerable == answerable)
+                if was_successful:
+                    n_successes += 1
+                logger.log(f"Correct!" if was_successful else "Wrong!")
+                accuracy = 100 * n_successes / n_tests
+                print(f"Accuracy: {accuracy}")
+            except Exception as e:
+                logger.log(f"Exception raised while processing UMWP question!: {e}")
+        logger.log(f"For UMWP, being correct on {n_successes} out of {n_tests}, solver agent has accuracy of {accuracy}%")
+        logger.flush_log_to_file()
+        self.assertLess(90, accuracy)
 
 
 if __name__ == '__main__':
