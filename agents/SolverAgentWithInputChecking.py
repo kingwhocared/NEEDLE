@@ -20,16 +20,19 @@ class SolverAgentWithInputChecking(SolverAgent):
             {"role": "system",
              "content": "Your task is to evaluate whether a given question is answerable based on logical completeness, clarity, and realism. "
                         "A question is answerable if and only if, "
-                        "based solely on the provided input and without making any additional assumptions, "
-                        "there is exactly one objectively correct answer. "
+                        "based only on the provided input and without any assumptions, "
+                        "there is only one objectively correct numeric answer. "
                         "Analyze the question carefully. "
                         "A question is unanswerable if any of the following issues are present: "
-                        "Key Information Missing – Essential details required to determine the answer are not provided. "
-                        "Ambiguous Key Information – Critical elements of the question are unclear, leading to multiple possible interpretations. "
-                        "Unrealistic Conditions – The question assumes impossible or highly improbable scenarios. "
-                        "Unrelated Object – The question introduces an object or concept that was not previously mentioned and lacks necessary context. "
-                        "Question Missing – The text does not contain a well-formed question."},
-            {"role": "user", "content": f"Think and inspect if the following problem is answerable: {solve_request}"}
+                        "1). Key Information Missing – Essential details required to determine the answer are not provided. "
+                        "2). Ambiguous Key Information – Critical elements of the question are unclear, leading to multiple possible interpretations. "
+                        "3). Unrealistic Conditions – The question assumes impossible or highly improbable scenarios. "
+                        "4). Unrelated Object – The question introduces an object or concept that was not previously mentioned and lacks necessary context. "
+                        "5). Question Missing – The text does not contain a well-formed question."
+                        "6). Open to interpretation - The problem can yield different answers based on varying perspectives. "},
+            {"role": "user", "content": f"Think and inspect if the following problem is answerable. "
+                                        f"Are there any signs it might not be answerable?"
+                                        f": {solve_request}"}
         ]
         logger.log(f"Starting verification of input problem: {solve_request}")
 
