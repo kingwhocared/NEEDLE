@@ -1,4 +1,4 @@
-from utils.MyOpenAIUtils import OPENAI_CLIENT, _GPT_MODEL
+from utils.MyOpenAIUtils import OPENAI_CLIENT, GPT_MODEL
 from utils.logging_utils import MyLoggerForFailures
 
 _CALL_ANSWER_READY_FUNCTION_NAME = "final_answer"
@@ -129,7 +129,7 @@ class SolverAgent:
                 "content": "Think about your next step."
             }
             completion = OPENAI_CLIENT.chat.completions.create(
-                model=_GPT_MODEL,
+                model=GPT_MODEL,
                 messages=messages + [thought_request],
             )
             thought_message = completion.choices[0].message
@@ -137,7 +137,7 @@ class SolverAgent:
             messages.append(thought_message)
 
             completion = OPENAI_CLIENT.chat.completions.create(
-                model=_GPT_MODEL,
+                model=GPT_MODEL,
                 messages=messages,
                 tools=self.tools,
                 tool_choice='required',

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from utils.MyOpenAIUtils import OPENAI_CLIENT, _GPT_MODEL
+from utils.MyOpenAIUtils import OPENAI_CLIENT, GPT_MODEL
 from utils.logging_utils import MyLoggerForFailures
 from SolverAgent import SolverAgent
 from utils.experiment_archiving_utils import INPUT_IS_UNANSWERABLE
@@ -37,7 +37,7 @@ class SolverAgentWithInputChecking(SolverAgent):
         logger.log(f"Starting verification of input problem: {solve_request}")
 
         completion = OPENAI_CLIENT.beta.chat.completions.parse(
-            model=_GPT_MODEL,
+            model=GPT_MODEL,
             messages=messages,
         )
 
@@ -54,7 +54,7 @@ class SolverAgentWithInputChecking(SolverAgent):
         })
 
         completion = OPENAI_CLIENT.beta.chat.completions.parse(
-            model=_GPT_MODEL,
+            model=GPT_MODEL,
             messages=messages,
             response_format=_ProblemIsAnswerableInspectionResult,
         )

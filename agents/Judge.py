@@ -1,6 +1,6 @@
 import copy
 
-from utils.MyOpenAIUtils import OPENAI_CLIENT, _GPT_MODEL, get_openai_inference_with_schema
+from utils.MyOpenAIUtils import OPENAI_CLIENT, GPT_MODEL, get_openai_inference_with_schema
 
 _LIMIT_INVESTIGATION_ROUNDS = 4
 _CONCLUSION_REACHED_FUNC_NAME = "reached_conclusion"
@@ -122,7 +122,7 @@ class Judge:
             n_times_prompted_investigation += 1
 
             completion = OPENAI_CLIENT.chat.completions.create(
-                model=_GPT_MODEL,
+                model=GPT_MODEL,
                 messages=messages_for_interrogator,
             )
 
@@ -137,7 +137,7 @@ class Judge:
             })
 
             completion = OPENAI_CLIENT.chat.completions.create(
-                model=_GPT_MODEL,
+                model=GPT_MODEL,
                 messages=messages_for_solver,
             )
 
@@ -153,7 +153,7 @@ class Judge:
 
         # request a report from the interrogator.
         completion = OPENAI_CLIENT.chat.completions.create(
-            model=_GPT_MODEL,
+            model=GPT_MODEL,
             messages=messages_for_interrogator,
             tools=self.tools,
             tool_choice="required"

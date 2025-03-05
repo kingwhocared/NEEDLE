@@ -58,7 +58,7 @@ class SolverAgentTests(unittest.TestCase):
         logger = MyLoggerForFailures(f"test_solver_agent_on_GSM8K")
         for _ in tqdm(range(200), desc="Processing"):
             try:
-                q, a = self.dataset_GSM8K.get_next_GSM_question()
+                q, a, _ = self.dataset_GSM8K.get_next_GSM_question()
                 n_tests += 1
                 was_successful = self._test_a_problem_solved_by_solver_agent(q, a, logger=logger)
                 if was_successful:
@@ -73,7 +73,7 @@ class SolverAgentTests(unittest.TestCase):
 
     def test_solver_agent_on_a_specified_GSM8K_question(self, q="The zookeeper feeds all the apes in the zoo. He "):
         logger = MyLoggerForFailures(q)
-        q, a = self.dataset_GSM8K.get_question_with_prefix(q)
+        q, a, _ = self.dataset_GSM8K.get_question_with_prefix(q)
         was_successful = self._test_a_problem_solved_by_solver_agent(q, a, logger=logger)
         logger.log("Done!")
 

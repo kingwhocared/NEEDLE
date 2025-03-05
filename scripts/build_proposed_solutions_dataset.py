@@ -31,9 +31,9 @@ cases = []
 
 def _collect_case(q=None):
     if q is None:
-        q, a = _gsm8k.get_next_GSM_question()
+        q, a, _ = _gsm8k.get_next_GSM_question()
     else:
-        q, a = _gsm8k.get_question_with_prefix(q)
+        q, a, _ = _gsm8k.get_question_with_prefix(q)
     sol_result, sol_trace = _solver.serve_solve_request(q, _logger)
     case = SolutionCase(q, a, sol_result, sol_trace)
     cases.append(case)

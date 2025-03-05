@@ -3,7 +3,7 @@ import json
 import random
 
 from utils.experiment_archiving_utils import INPUT_IS_UNANSWERABLE
-
+from utils.globals import _RANDOM_SEED
 
 class UMWP:
     def __init__(self, shuffle=True):
@@ -27,8 +27,8 @@ class UMWP:
             self.dataset.append(d_formatted)
         self.len_dataset = len(self.dataset)
         self._cursor = 0
-        if shuffle:
-            random.shuffle(self.dataset)
+        random.seed(_RANDOM_SEED)
+        random.shuffle(self.dataset)
 
     def get_next_UWMP_question(self):
         d = self.dataset[self._cursor]
@@ -48,5 +48,5 @@ class UMWP:
     def get_question_with_prefix(self, prefix):
         for q in self.dataset:
             if q['question'].startswith(prefix):
-                return q['question'], int(q['answer'])
+                return q['question'], int(q['answer']), q['id']
         raise RuntimeError("No such question found!")
