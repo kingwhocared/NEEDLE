@@ -1,0 +1,8 @@
+make a evaluation template that is resilient to errors.
+
+how to evaluate on naked gpt?
+
+CIAR? floats?
+
+actually start evaluation!!!
+

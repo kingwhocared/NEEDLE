@@ -2,7 +2,8 @@ import os
 import json
 import random
 
-UNANSWERABLE = "UNANSWERABLE"
+from utils.experiment_archiving_utils import INPUT_IS_UNANSWERABLE
+
 
 class UMWP:
     def __init__(self, shuffle=True):
@@ -14,7 +15,7 @@ class UMWP:
         self.dataset = []
         for d in dataset_raw:
             answerable = d['answerable']
-            answer = d['answer'][0] if answerable else UNANSWERABLE
+            answer = d['answer'][0] if answerable else INPUT_IS_UNANSWERABLE
             if answerable and not answer.is_integer():
                 continue  # For now, ignoring floats. There are only 3 float cases among 5,200 questions.
             d_formatted = {

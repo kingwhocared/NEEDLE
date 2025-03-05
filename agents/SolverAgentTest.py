@@ -4,7 +4,8 @@ from sklearn.metrics import f1_score
 
 from datasets.SyntheticArithmetics import SyntheticArithmetics
 from datasets.GSM8K import GSM8K
-from datasets.UWMP import UMWP, UNANSWERABLE
+from datasets.UWMP import UMWP
+from utils.experiment_archiving_utils import INPUT_IS_UNANSWERABLE
 
 from utils.logging_utils import MyLoggerForFailures
 from agents.SolverAgentWithInputChecking import SolverAgentWithInputChecking

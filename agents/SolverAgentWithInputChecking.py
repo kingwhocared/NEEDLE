@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from utils.MyOpenAIUtils import OPENAI_CLIENT, _GPT_MODEL
 from utils.logging_utils import MyLoggerForFailures
 from SolverAgent import SolverAgent
-from datasets.UWMP import UNANSWERABLE
+from utils.experiment_archiving_utils import INPUT_IS_UNANSWERABLE
 
 
 class _ProblemIsAnswerableInspectionResult(BaseModel):
@@ -75,4 +75,4 @@ class SolverAgentWithInputChecking(SolverAgent):
         if answerable:
             return super().serve_solve_request(solve_request, logger)
         else:
-            return UNANSWERABLE
+            return INPUT_IS_UNANSWERABLE

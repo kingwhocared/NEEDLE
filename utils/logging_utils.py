@@ -37,12 +37,14 @@ class MyLoggerForFailures:
 
         self.logger = logger
 
-    def flush_log_to_file(self, filename=None):
-        if filename is None:
-            filename = _short_alphabetic_hash(self.logger.name)
+    def flush_log_to_file(self, filename=None, filepath=None):
+        if filepath is None:
+            if filename is None:
+                filename = _short_alphabetic_hash(self.logger.name)
+            filepath = os.path.join(_PATH_TO_LOGS, f"{filename}_{_get_short_datetime()}.txt"),
         log_content = self.log_buffer.getvalue()
         if log_content:  # Only write if there's something logged
-            with open(os.path.join(_PATH_TO_LOGS, f"{filename}_{_get_short_datetime()}.txt"), "w", encoding="utf-8") as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 f.write(log_content)
 
     def log(self, to_log):
