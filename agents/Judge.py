@@ -97,12 +97,6 @@ class Judge:
         messages_for_solver = messages_for_solver[:-2]
         messages_for_solver.append(final_answer_message)
 
-
-
-        # logger.log(f"Solution trace:")
-        # for m in messages_for_interrogator:
-        #     logger.log(m["content"])
-
         n_times_prompted_investigation = 0
 
         while n_times_prompted_investigation < _LIMIT_INVESTIGATION_ROUNDS:

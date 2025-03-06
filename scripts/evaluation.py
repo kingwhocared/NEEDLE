@@ -1,5 +1,6 @@
 from tqdm import tqdm
 
+from datasets.CIAR import CIAR
 from utils.MyOpenAIUtils import GPT_MODEL
 from utils.logging_utils import MyLoggerForFailures
 from utils.experiment_archiving_utils import ExperimentSample, ExperimentsArchivingUtil, INPUT_IS_UNANSWERABLE, \
@@ -13,6 +14,7 @@ _NAKED_LLM = "NAKED_GPT"
 
 # datasets
 _GSM8K = "GSM8K"
+_CIAR = "CIAR"
 _UMWP = "UMWP"
 
 
@@ -36,10 +38,16 @@ def run_and_archive_evaluation(experiment_name,
         def get_next_from_dataset_source():
             q, a, id = gsm8k.get_next_GSM_question()
             return id, q, a
+    elif dataset_source == _CIAR:
+        ciar = CIAR()
+        n_samples = min(n_samples, ciar.len_dataset)
+
+        def get_next_from_dataset_source():
+            id, question, answer = ciar.get_next_CIAR_question()
+            return id, question, answer
     elif dataset_source == _UMWP:
         umwp = UMWP()
         n_samples = min(n_samples, umwp.len_dataset)
-
 
         def get_next_from_dataset_source():
             id, question, answerable, answer = umwp.get_next_UWMP_question()
@@ -52,7 +60,8 @@ def run_and_archive_evaluation(experiment_name,
     for _ in tqdm(range(n_samples), desc="Processing"):
         question_id, question, ground_truth_answer = get_next_from_dataset_source()
 
-        if already_exists_archived_experiment_sample(experiment_name, model, model_version_label, dataset_source, question_id):
+        if already_exists_archived_experiment_sample(experiment_name, model, model_version_label, dataset_source,
+                                                     question_id):
             print(f"Skipping already archived question: {question}")
             continue
 
@@ -77,9 +86,9 @@ def run_and_archive_evaluation(experiment_name,
         experimentsArchivingUtil.serialize_and_log_experiment_end_result(experimentSample, logger)
 
 
-run_and_archive_evaluation(experiment_name="test",
+run_and_archive_evaluation(experiment_name="test_float_ciar",
                            model=_NAKED_LLM,
                            model_version_label=GPT_MODEL,
-                           dataset_source=_UMWP,
-                           n_samples=2,
+                           dataset_source=_CIAR,
+                           n_samples=1,
                            )

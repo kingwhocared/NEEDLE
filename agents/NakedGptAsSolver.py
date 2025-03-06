@@ -1,3 +1,5 @@
+import numbers
+
 from pydantic import BaseModel
 
 from utils.logging_utils import MyLoggerForFailures
@@ -5,7 +7,7 @@ from utils.MyOpenAIUtils import get_openai_inference_with_schema, get_openai_inf
 from utils.experiment_archiving_utils import COULD_NOT_EXTRACT_NUMBER_FROM_SOLUTION
 
 class _NumberSchema(BaseModel):
-    answer: int
+    answer: float
 
 
 class NakedGptAsSolver:
@@ -18,7 +20,7 @@ class NakedGptAsSolver:
             ret = get_openai_inference(question)
             logger.log(f"LLM: {ret}")
             ret = get_openai_inference_with_schema(
-                f"Retrieve the final answer as an integer, "
+                f"Retrieve the final answer as an number, "
                 f"or return -1 if it's missing or not a numeric value. "
                 f"The context is: {ret}",
                 _NumberSchema).answer
