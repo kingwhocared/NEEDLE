@@ -72,13 +72,16 @@ def run_and_archive_evaluation(experiment_name,
 
         logger = MyLoggerForFailures(f"q_id_{question_id}")
 
-        logger.log(f"The ground truth answer for this question is: {ground_truth_answer}")
-
         try:
             proposed_answer = get_model_answer(question, logger)
         except Exception as e:
             print(f"Failed to get model answer, q:{question_id} exception:{e}")
             proposed_answer = None
+
+        logger.log(f"The question was: {question}")
+        logger.log(f"The ground truth answer for this question is: {ground_truth_answer}")
+        logger.log(f"The answer given by the model is: {proposed_answer}")
+
 
         experimentSample = ExperimentSample(
             model=model,
@@ -96,6 +99,6 @@ def run_and_archive_evaluation(experiment_name,
 run_and_archive_evaluation(experiment_name="test_NEEDLE",
                            model=_NEEDLE,
                            model_version_label=GPT_MODEL,
-                           dataset_source=_GSM8K,
-                           n_samples=1,
+                           dataset_source=_CIAR,
+                           n_samples=2,
                            )

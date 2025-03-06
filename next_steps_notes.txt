@@ -1,4 +1,2 @@
-how to handle floats in NEEDLE?
-
 actually start evaluation!!!
 
