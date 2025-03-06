@@ -31,12 +31,15 @@ def run_and_archive_evaluation(experiment_name,
 
     if dataset_source == _GSM8K:
         gsm8k = GSM8K()
+        n_samples = min(n_samples, gsm8k.len_dataset)
 
         def get_next_from_dataset_source():
             q, a, id = gsm8k.get_next_GSM_question()
             return id, q, a
     elif dataset_source == _UMWP:
         umwp = UMWP()
+        n_samples = min(n_samples, umwp.len_dataset)
+
 
         def get_next_from_dataset_source():
             id, question, answerable, answer = umwp.get_next_UWMP_question()

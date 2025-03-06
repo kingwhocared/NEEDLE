@@ -6,7 +6,7 @@ from utils.experiment_archiving_utils import INPUT_IS_UNANSWERABLE
 from utils.globals import _RANDOM_SEED
 
 class UMWP:
-    def __init__(self, shuffle=True):
+    def __init__(self):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         file_path = os.path.join(base_dir, "resources", "UMWP.jsonl")
 

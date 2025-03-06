@@ -1,4 +1,3 @@
-import unittest
 from pydantic import BaseModel
 
 from utils.logging_utils import MyLoggerForFailures
@@ -23,6 +22,7 @@ class NakedGptAsSolver:
                 f"or return -1 if it's missing or not a numeric value. "
                 f"The context is: {ret}",
                 _NumberSchema).answer
+            # P.s, I looked it up, none of the answers in any of the datasets is -1 so we can use that value.
             ret = COULD_NOT_EXTRACT_NUMBER_FROM_SOLUTION if ret == -1 else ret
             message = f'LLM returned final answer: {ret}'
             logger.log(message)
