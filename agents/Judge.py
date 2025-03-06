@@ -123,7 +123,7 @@ class Judge:
             completion = completion.choices[0]
             q_to_solver = completion.message.content
             messages_for_interrogator.append(completion.message)
-            logger.log(f"Question to solver: {q_to_solver}")
+            logger.log(f"Question to solver was: {q_to_solver}")
 
             messages_for_solver.append({
                 "role": "user",
@@ -141,7 +141,7 @@ class Judge:
                 "content": a_from_solver,
                 "role": "user"
             }
-            logger.log(f"Answer from solver: {a_from_solver}")
+            logger.log(f"Proposed answer from solver was: {a_from_solver}")
 
             messages_for_interrogator.append(a_from_solver_message)
 

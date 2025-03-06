@@ -2,8 +2,6 @@ from pydantic import BaseModel
 
 from utils.MyOpenAIUtils import OPENAI_CLIENT, GPT_MODEL
 from utils.logging_utils import MyLoggerForFailures
-from SolverAgent import SolverAgent
-from utils.experiment_archiving_utils import INPUT_IS_UNANSWERABLE
 
 
 class _ProblemIsAnswerableInspectionResult(BaseModel):
@@ -11,11 +9,8 @@ class _ProblemIsAnswerableInspectionResult(BaseModel):
     reason: str
 
 
-class SolverAgentWithInputChecking(SolverAgent):
-    def __init__(self):
-        super().__init__()
-
-    def determine_solvable(self, solve_request, logger):
+class InputCheckingAgent:
+    def determine_solvable(self, solve_request, logger: MyLoggerForFailures):
         messages = [
             {"role": "system",
              "content": "Your task is to evaluate whether a given question is answerable based on logical completeness, clarity, and realism. "
@@ -65,14 +60,6 @@ class SolverAgentWithInputChecking(SolverAgent):
         answerable = inspection_result.answerable
         reason = inspection_result.reason
 
-        logger.log(f"Inspection result: answerable={answerable}, reason={reason}")
+        logger.log(f"Input inspection result: answerable={answerable}, reason={reason}")
 
         return answerable
-
-    def serve_solve_request(self, solve_request, logger: MyLoggerForFailures):
-        answerable = self.determine_solvable(solve_request, logger)
-
-        if answerable:
-            return super().serve_solve_request(solve_request, logger)
-        else:
-            return INPUT_IS_UNANSWERABLE
