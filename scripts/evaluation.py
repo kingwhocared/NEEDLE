@@ -1,10 +1,14 @@
 from tqdm import tqdm
+import pickle
+import numpy as np
+import pandas as pd
+from dataclasses import asdict
+
 
 from datasets.CIAR import CIAR
-from utils.MyOpenAIUtils import GPT_MODEL
 from utils.logging_utils import MyLoggerForFailures
 from utils.experiment_archiving_utils import ExperimentSample, ExperimentsArchivingUtil, INPUT_IS_UNANSWERABLE, \
-    already_exists_archived_experiment_sample
+    already_exists_archived_experiment_sample, PATH_TO_EXPERIMENTS
 from agents.NakedGptAsSolver import NakedGptAsSolver
 from NEEDLE import NEEDLE
 from datasets.GSM8K import GSM8K
@@ -18,6 +22,7 @@ _NEEDLE = "NEEDLE"
 _GSM8K = "GSM8K"
 _CIAR = "CIAR"
 _UMWP = "UMWP"
+_ALL_DATASETS = [_GSM8K, _CIAR, _UMWP]
 
 
 def run_and_archive_evaluation(experiment_name,
@@ -96,9 +101,47 @@ def run_and_archive_evaluation(experiment_name,
         experimentsArchivingUtil.serialize_and_log_experiment_end_result(experimentSample, logger)
 
 
-run_and_archive_evaluation(experiment_name="test_NEEDLE",
-                           model=_NEEDLE,
-                           model_version_label=GPT_MODEL,
-                           dataset_source=_CIAR,
-                           n_samples=2,
-                           )
+# for dataset in _ALL_DATASETS:
+#     n_samples = 50
+#     run_and_archive_evaluation(experiment_name="first_eval_NEEDLE_all_datasets",
+#                                model=_NEEDLE,
+#                                model_version_label="v1",
+#                                dataset_source=dataset,
+#                                n_samples=50,
+#                                )
+
+
+def get_collected_eval_from_experiments(experiments):
+    all_experiments = []
+    for experiment in experiments:
+        folder_path = PATH_TO_EXPERIMENTS / experiment
+        for file in folder_path.iterdir():
+            if file.is_file() and file.suffix == ".pkl":
+                with open(file, "rb") as f:
+                    sample = pickle.load(f)
+                    all_experiments.append(sample)
+    df = pd.DataFrame([asdict(sample) for sample in all_experiments])
+
+    # Rounding floats so comparison can be much easier later.
+    def relative_closeness(a, b):
+        try:
+            a_num, b_num = float(a), float(b)  # Convert to float
+            return 1 - abs(a_num - b_num) / max(abs(a_num), abs(b_num))
+        except ValueError:
+            return np.nan  # Return NaN for non-numeric cases
+    #
+    df["Relative_Closeness"] = df.apply(lambda row: relative_closeness(row["proposed_answer"], row["ground_truth_answer"]), axis=1)
+    to_round = df["Relative_Closeness"] >= 0.99
+    df[to_round]["proposed_answer"] = df[to_round]["ground_truth_answer"]
+    df.drop(columns="Relative_Closeness", inplace=True)
+
+    return df
+
+
+df = get_collected_eval_from_experiments(
+    ["first_eval_NEEDLE_all_datasets",
+     "first_eval_naked_all_datasets",
+     ]
+)
+
+df.to_csv("df.csv", index=False)

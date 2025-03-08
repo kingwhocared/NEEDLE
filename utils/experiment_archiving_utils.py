@@ -5,9 +5,9 @@ from typing import Union
 import pickle
 from .logging_utils import MyLoggerForFailures
 
-_PATH_TO_EXPERIMENTS = Path(__file__).parent.parent.resolve() / "experiments"
-if not os.path.exists(_PATH_TO_EXPERIMENTS):
-    os.mkdir(_PATH_TO_EXPERIMENTS)
+PATH_TO_EXPERIMENTS = Path(__file__).parent.parent.resolve() / "experiments"
+if not os.path.exists(PATH_TO_EXPERIMENTS):
+    os.mkdir(PATH_TO_EXPERIMENTS)
 
 COULD_NOT_EXTRACT_NUMBER_FROM_SOLUTION = "COULD_NOT_EXTRACT_NUMBER_FROM_SOLUTION"
 INPUT_IS_UNANSWERABLE = "UNANSWERABLE"
@@ -27,7 +27,7 @@ class ExperimentSample:
 
 def _get_pickled_experiment_sample_filepath(experiment_name, model, model_version, dataset_source, question_id):
     f_name = f"{model}_{model_version}_{dataset_source}_{question_id}_ExperimentSample.pkl"
-    return os.path.join(_PATH_TO_EXPERIMENTS, experiment_name, f_name)
+    return os.path.join(PATH_TO_EXPERIMENTS, experiment_name, f_name)
 
 
 def already_exists_archived_experiment_sample(experiment_name, model, model_version, dataset_source, question_id):
@@ -38,7 +38,7 @@ def already_exists_archived_experiment_sample(experiment_name, model, model_vers
 class ExperimentsArchivingUtil:
     def __init__(self, experiment_name):
         self.experiment_name = experiment_name
-        path_to_experiment_folder = _PATH_TO_EXPERIMENTS / experiment_name
+        path_to_experiment_folder = PATH_TO_EXPERIMENTS / experiment_name
         if not os.path.exists(path_to_experiment_folder):
             os.mkdir(path_to_experiment_folder)
 
