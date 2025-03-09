@@ -1,2 +1,7 @@
-actually start evaluation!!!
+Fix colors in plots.
 
+Add single legend.
+
+Go over CIAR and fix errors in dataset.
+
+more samples.

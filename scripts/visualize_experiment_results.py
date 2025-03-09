@@ -5,18 +5,22 @@ import matplotlib.pyplot as plt
 file_path = "df.csv"
 df = pd.read_csv(file_path)
 
+
 # Define function for NAKED_GPT classification
 def classify_naked(row):
     if row["dataset_source"] == "UMWP":
-        if (row["proposed_answer"] == "COULD_NOT_EXTRACT_NUMBER_FROM_SOLUTION" and
-            row["ground_truth_answer"] == "UNANSWERABLE"):
-            return "Correct"
-    if row["proposed_answer"] == row["ground_truth_answer"]:
-        return "Correct"
-    elif row["proposed_answer"] == "COULD_NOT_PROVIDE_ANSWER":
+        if row["ground_truth_answer"] == "UNANSWERABLE":
+            if row["proposed_answer"] == "COULD_NOT_EXTRACT_NUMBER_FROM_SOLUTION":
+                return "Correctly didn't hallucinate an answer"
+            else:
+                return "Hallucinated an answer."
+    if row["proposed_answer"] == "COULD_NOT_PROVIDE_ANSWER":
         return "COULD_NOT_PROVIDE_ANSWER"
     else:
-        return "Wrong"
+        prop = float(row["proposed_answer"])
+        truth = float(row["ground_truth_answer"])
+        return "Correct" if prop == truth else "Wrong"
+
 
 # Define function for NEEDLE classification
 def classify_needle(row):
@@ -26,12 +30,20 @@ def classify_needle(row):
             truth = float(row["ground_truth_answer"])
             return "Correct" if prop == truth else "Wrong"
         except:
-            return row["proposed_answer"]
+            ret = row["proposed_answer"]
+            if ret == "UNCERTAIN_SOLUTION":
+                ret = "Rejected due to uncertainty"
+            elif ret == "UNANSWERABLE":
+                ret = "Rejected input as invalid"
+            return ret
     elif row["dataset_source"] == "UMWP":
         if row["proposed_answer"] == "UNANSWERABLE":
-            return "Correctly identified unanswerable" if row["ground_truth_answer"] == "UNANSWERABLE" else "Falsely claiming to be unanswerable"
+            return "Correctly identified unanswerable" if row[
+                                                              "ground_truth_answer"] == "UNANSWERABLE" else "Falsely claiming to be unanswerable"
         elif row["proposed_answer"] == "UNCERTAIN_SOLUTION":
             return "Rejected due to uncertainty"
+        elif row["ground_truth_answer"] == "UNANSWERABLE":
+            return "Hallucinated an answer"
         else:
             try:
                 prop = float(row["proposed_answer"])
@@ -41,6 +53,7 @@ def classify_needle(row):
                 return row["proposed_answer"]
     else:
         return "Unknown"
+
 
 # Apply classification functions
 df.loc[df["model"] == "NAKED_GPT", "result"] = df[df["model"] == "NAKED_GPT"].apply(classify_naked, axis=1)
