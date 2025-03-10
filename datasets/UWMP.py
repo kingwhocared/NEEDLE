@@ -6,7 +6,7 @@ from utils.experiment_archiving_utils import INPUT_IS_UNANSWERABLE
 from utils.globals import _RANDOM_SEED
 
 class UMWP:
-    def __init__(self):
+    def __init__(self, get_only_unanswerable=False):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         file_path = os.path.join(base_dir, "resources", "UMWP.jsonl")
 
@@ -15,6 +15,8 @@ class UMWP:
         self.dataset = []
         for d in dataset_raw:
             answerable = d['answerable']
+            if get_only_unanswerable and answerable:
+                continue
             answer = d['answer'][0] if answerable else INPUT_IS_UNANSWERABLE
             if answerable and not answer.is_integer():
                 continue  # For now, ignoring floats. There are only 3 float cases among 5,200 questions.

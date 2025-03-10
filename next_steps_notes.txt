@@ -1,7 +1,3 @@
-Fix colors in plots.
+Go over CIAR?
 
-Add single legend.
-
-Go over CIAR and fix errors in dataset.
-
-more samples.
+more samples? already got 300!

@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 file_path = "df.csv"
 df = pd.read_csv(file_path)
 
+df = df[~((df["dataset_source"] == "UMWP") & (df["ground_truth_answer"] != "UNANSWERABLE"))]
+
+
 
 # Define function for NAKED_GPT classification
 def classify_naked(row):
@@ -13,7 +16,7 @@ def classify_naked(row):
             if row["proposed_answer"] == "COULD_NOT_EXTRACT_NUMBER_FROM_SOLUTION":
                 return "Correctly didn't hallucinate an answer"
             else:
-                return "Hallucinated an answer."
+                return "Hallucinated an answer"
     if row["proposed_answer"] == "COULD_NOT_PROVIDE_ANSWER":
         return "COULD_NOT_PROVIDE_ANSWER"
     else:
@@ -38,7 +41,7 @@ def classify_needle(row):
             return ret
     elif row["dataset_source"] == "UMWP":
         if row["proposed_answer"] == "UNANSWERABLE":
-            return "Correctly identified unanswerable" if row[
+            return "Correctly rejected input as unanswerable" if row[
                                                               "ground_truth_answer"] == "UNANSWERABLE" else "Falsely claiming to be unanswerable"
         elif row["proposed_answer"] == "UNCERTAIN_SOLUTION":
             return "Rejected due to uncertainty"
@@ -52,7 +55,7 @@ def classify_needle(row):
             except:
                 return row["proposed_answer"]
     else:
-        return "Unknown"
+        raise RuntimeError
 
 
 # Apply classification functions
@@ -64,6 +67,20 @@ fig, axes = plt.subplots(2, 3, figsize=(15, 10))
 models = ["NAKED_GPT", "NEEDLE"]
 datasets = ["GSM8K", "CIAR", "UMWP"]
 
+color_map = {
+    "Correct": "darkgreen",
+    "Wrong": "darkred",
+
+    "Hallucinated an answer": "darkred",
+    "Correctly didn't hallucinate an answer": "darkgreen",
+
+    "Rejected due to uncertainty": "gray",
+    "Rejected input as invalid": "darkgray",
+
+    "Correctly rejected input as unanswerable": "darkgreen",
+    "Falsely claiming to be unanswerable": "darkorange",
+}
+
 # Loop through each model and dataset
 for i, model in enumerate(models):
     for j, dataset in enumerate(datasets):
@@ -72,8 +89,14 @@ for i, model in enumerate(models):
         counts = subset["result"].value_counts()
         labels = counts.index.tolist()
         sizes = counts.values.tolist()
-        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
-        ax.set_title(f"{model} - {dataset}")
+
+        # Assign colors based on labels
+        colors = [color_map.get(label, "purple") for label in labels]
+
+        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors)
+        ax.set_title(f"{dataset} - {model}")
 
 plt.tight_layout()
-plt.show()
+# plt.show()
+
+fig.savefig('myimage.svg', format='svg', dpi=1200)

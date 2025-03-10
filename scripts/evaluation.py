@@ -6,6 +6,7 @@ from dataclasses import asdict
 
 
 from datasets.CIAR import CIAR
+from utils.MyOpenAIUtils import GPT_MODEL
 from utils.logging_utils import MyLoggerForFailures
 from utils.experiment_archiving_utils import ExperimentSample, ExperimentsArchivingUtil, INPUT_IS_UNANSWERABLE, \
     already_exists_archived_experiment_sample, PATH_TO_EXPERIMENTS
@@ -56,7 +57,7 @@ def run_and_archive_evaluation(experiment_name,
             id, question, answer = ciar.get_next_CIAR_question()
             return id, question, answer
     elif dataset_source == _UMWP:
-        umwp = UMWP()
+        umwp = UMWP(get_only_unanswerable=True)
         n_samples = min(n_samples, umwp.len_dataset)
 
         def get_next_from_dataset_source():
@@ -101,14 +102,20 @@ def run_and_archive_evaluation(experiment_name,
         experimentsArchivingUtil.serialize_and_log_experiment_end_result(experimentSample, logger)
 
 
-# for dataset in _ALL_DATASETS:
-#     n_samples = 50
-#     run_and_archive_evaluation(experiment_name="first_eval_NEEDLE_all_datasets",
-#                                model=_NEEDLE,
-#                                model_version_label="v1",
-#                                dataset_source=dataset,
-#                                n_samples=50,
-#                                )
+for dataset in _ALL_DATASETS:
+    n_samples = 300
+    run_and_archive_evaluation(experiment_name="first_eval_naked_all_datasets",
+                               model=_NAKED_LLM,
+                               model_version_label=GPT_MODEL,
+                               dataset_source=dataset,
+                               n_samples=n_samples,
+                               )
+    run_and_archive_evaluation(experiment_name="first_eval_NEEDLE_all_datasets",
+                               model=_NEEDLE,
+                               model_version_label="v1",
+                               dataset_source=dataset,
+                               n_samples=n_samples,
+                               )
 
 
 def get_collected_eval_from_experiments(experiments):
