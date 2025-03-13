@@ -1,6 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from utils.MyOpenAIUtils import GPT_MODEL
+
 # Load the CSV file
 file_path = "df.csv"
 df = pd.read_csv(file_path)
@@ -8,8 +10,6 @@ df = pd.read_csv(file_path)
 df = df[~((df["dataset_source"] == "UMWP") & (df["ground_truth_answer"] != "UNANSWERABLE"))]
 
 
-
-# Define function for NAKED_GPT classification
 def classify_naked(row):
     if row["dataset_source"] == "UMWP":
         if row["ground_truth_answer"] == "UNANSWERABLE":
@@ -25,7 +25,6 @@ def classify_naked(row):
         return "Correct" if prop == truth else "Wrong"
 
 
-# Define function for NEEDLE classification
 def classify_needle(row):
     if row["dataset_source"] in ["GSM8K", "CIAR"]:
         try:
@@ -42,7 +41,7 @@ def classify_needle(row):
     elif row["dataset_source"] == "UMWP":
         if row["proposed_answer"] == "UNANSWERABLE":
             return "Correctly rejected input as unanswerable" if row[
-                                                              "ground_truth_answer"] == "UNANSWERABLE" else "Falsely claiming to be unanswerable"
+                                                                     "ground_truth_answer"] == "UNANSWERABLE" else "Falsely claiming to be unanswerable"
         elif row["proposed_answer"] == "UNCERTAIN_SOLUTION":
             return "Rejected due to uncertainty"
         elif row["ground_truth_answer"] == "UNANSWERABLE":
@@ -58,11 +57,9 @@ def classify_needle(row):
         raise RuntimeError
 
 
-# Apply classification functions
 df.loc[df["model"] == "NAKED_GPT", "result"] = df[df["model"] == "NAKED_GPT"].apply(classify_naked, axis=1)
 df.loc[df["model"] == "NEEDLE", "result"] = df[df["model"] == "NEEDLE"].apply(classify_needle, axis=1)
 
-# Set up the subplots
 fig, axes = plt.subplots(2, 3, figsize=(15, 10))
 models = ["NAKED_GPT", "NEEDLE"]
 datasets = ["GSM8K", "CIAR", "UMWP"]
@@ -70,33 +67,49 @@ datasets = ["GSM8K", "CIAR", "UMWP"]
 color_map = {
     "Correct": "darkgreen",
     "Wrong": "darkred",
-
     "Hallucinated an answer": "darkred",
     "Correctly didn't hallucinate an answer": "darkgreen",
-
     "Rejected due to uncertainty": "gray",
     "Rejected input as invalid": "darkgray",
-
     "Correctly rejected input as unanswerable": "darkgreen",
     "Falsely claiming to be unanswerable": "darkorange",
 }
 
-# Loop through each model and dataset
 for i, model in enumerate(models):
     for j, dataset in enumerate(datasets):
         ax = axes[i, j]
         subset = df[(df["model"] == model) & (df["dataset_source"] == dataset)]
-        counts = subset["result"].value_counts()
+        counts = subset["result"].value_counts().reindex([
+            'Wrong',
+            'Hallucinated an answer',
+            'Falsely claiming to be unanswerable',
+
+            'Rejected due to uncertainty',
+            'Rejected input as invalid',
+
+            'Correct',
+            'Correctly rejected input as unanswerable',
+            "Correctly didn't hallucinate an answer",
+        ]).dropna()
         labels = counts.index.tolist()
         sizes = counts.values.tolist()
 
-        # Assign colors based on labels
+        # Pick colors for each slice
         colors = [color_map.get(label, "purple") for label in labels]
 
-        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors)
-        ax.set_title(f"{dataset} - {model}")
+        # Create pie without slice labels
+        wedges, _ = ax.pie(sizes, startangle=90, colors=colors)
+
+        # Build a custom legend that shows label + percentage
+        total = sum(sizes)
+        legend_labels = [f"{lbl} ({val / total * 100:.1f}%)" for lbl, val in zip(labels, sizes)]
+        ax.legend(wedges, legend_labels, loc="center", bbox_to_anchor=(0.5, 0.5), frameon=True,
+                  facecolor="white").get_frame().set_alpha(1)
+
+        mode_display_name = model
+        if model == "NAKED_GPT":
+            mode_display_name = GPT_MODEL
+        ax.set_title(f"{dataset} | {mode_display_name}")
 
 plt.tight_layout()
-# plt.show()
-
 fig.savefig('myimage.svg', format='svg', dpi=1200)
