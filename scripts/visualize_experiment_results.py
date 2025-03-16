@@ -60,7 +60,14 @@ def classify_needle(row):
 df.loc[df["model"] == "NAKED_GPT", "result"] = df[df["model"] == "NAKED_GPT"].apply(classify_naked, axis=1)
 df.loc[df["model"] == "NEEDLE", "result"] = df[df["model"] == "NEEDLE"].apply(classify_needle, axis=1)
 
-fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+dpi = 150
+fig_size_w = 9.
+fig_size_h = 15.
+
+
+
+fig, axes = plt.subplots(3, 2, figsize=(fig_size_w, fig_size_h))
+
 models = ["NAKED_GPT", "NEEDLE"]
 datasets = ["GSM8K", "CIAR", "UMWP"]
 
@@ -75,9 +82,10 @@ color_map = {
     "Falsely claiming to be unanswerable": "darkorange",
 }
 
-for i, model in enumerate(models):
-    for j, dataset in enumerate(datasets):
-        ax = axes[i, j]
+
+for j, dataset in enumerate(datasets):
+    for i, model in enumerate(models):
+        ax = axes[j, i]
         subset = df[(df["model"] == model) & (df["dataset_source"] == dataset)]
         counts = subset["result"].value_counts().reindex([
             'Wrong',
@@ -112,4 +120,5 @@ for i, model in enumerate(models):
         ax.set_title(f"{dataset} | {mode_display_name}")
 
 plt.tight_layout()
-fig.savefig('myimage.svg', format='svg', dpi=1200)
+fig.savefig('eval.svg', format='svg', dpi=1200)
+fig.savefig('eval.png', format='png', dpi=dpi)
