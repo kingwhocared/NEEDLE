@@ -1,5 +1,4 @@
 /venv/
 .idea/
 *.pyc
-logs_and_notes/
 experiments/

@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 from dataclasses import asdict
 
-
 from datasets.CIAR import CIAR
 from utils.MyOpenAIUtils import GPT_MODEL
 from utils.logging_utils import MyLoggerForFailures
@@ -88,7 +87,6 @@ def run_and_archive_evaluation(experiment_name,
         logger.log(f"The ground truth answer for this question is: {ground_truth_answer}")
         logger.log(f"The answer given by the model is: {proposed_answer}")
 
-
         experimentSample = ExperimentSample(
             model=model,
             model_version=model_version_label,
@@ -103,19 +101,19 @@ def run_and_archive_evaluation(experiment_name,
 
 
 for dataset in _ALL_DATASETS:
-    n_samples = 300
-    run_and_archive_evaluation(experiment_name="first_eval_naked_all_datasets",
+    n_samples = 600
+    run_and_archive_evaluation(experiment_name="naked_4o",
                                model=_NAKED_LLM,
                                model_version_label=GPT_MODEL,
                                dataset_source=dataset,
                                n_samples=n_samples,
                                )
-    run_and_archive_evaluation(experiment_name="first_eval_NEEDLE_all_datasets",
-                               model=_NEEDLE,
-                               model_version_label="v1",
-                               dataset_source=dataset,
-                               n_samples=n_samples,
-                               )
+    # run_and_archive_evaluation(experiment_name="first_eval_NEEDLE_all_datasets",
+    #                            model=_NEEDLE,
+    #                            model_version_label="v1",
+    #                            dataset_source=dataset,
+    #                            n_samples=n_samples,
+    #                            )
 
 
 def get_collected_eval_from_experiments(experiments):
@@ -136,8 +134,10 @@ def get_collected_eval_from_experiments(experiments):
             return 1 - abs(a_num - b_num) / max(abs(a_num), abs(b_num))
         except ValueError:
             return np.nan  # Return NaN for non-numeric cases
+
     #
-    df["Relative_Closeness"] = df.apply(lambda row: relative_closeness(row["proposed_answer"], row["ground_truth_answer"]), axis=1)
+    df["Relative_Closeness"] = df.apply(
+        lambda row: relative_closeness(row["proposed_answer"], row["ground_truth_answer"]), axis=1)
     to_round = df["Relative_Closeness"] >= 0.99
     df[to_round]["proposed_answer"] = df[to_round]["ground_truth_answer"]
     df.drop(columns="Relative_Closeness", inplace=True)
@@ -146,9 +146,9 @@ def get_collected_eval_from_experiments(experiments):
 
 
 df = get_collected_eval_from_experiments(
-    ["first_eval_NEEDLE_all_datasets",
-     "first_eval_naked_all_datasets",
+    ["naked_4o",
+     "first_eval_NEEDLE_all_datasets",
      ]
 )
 
-df.to_csv("df.csv", index=False)
+df.to_csv("df_4o.csv", index=False)

@@ -60,7 +60,7 @@ def classify_needle(row):
 df.loc[df["model"] == "NAKED_GPT", "result"] = df[df["model"] == "NAKED_GPT"].apply(classify_naked, axis=1)
 df.loc[df["model"] == "NEEDLE", "result"] = df[df["model"] == "NEEDLE"].apply(classify_needle, axis=1)
 
-dpi = 150
+dpi = 200
 fig_size_w = 9.
 fig_size_h = 15.
 
@@ -112,11 +112,13 @@ for j, dataset in enumerate(datasets):
         total = sum(sizes)
         legend_labels = [f"{lbl} ({val / total * 100:.1f}%)" for lbl, val in zip(labels, sizes)]
         ax.legend(wedges, legend_labels, loc="center", bbox_to_anchor=(0.5, 0.5), frameon=True,
-                  facecolor="white").get_frame().set_alpha(1)
+                  facecolor="white", fontsize=11).get_frame().set_alpha(1)
 
         mode_display_name = model
         if model == "NAKED_GPT":
             mode_display_name = GPT_MODEL
+        if model == "NEEDLE":
+            mode_display_name = "NEEDLE (gpt-4o-mini)"
         ax.set_title(f"{dataset} | {mode_display_name}")
 
 plt.tight_layout()
